@@ -210,7 +210,18 @@ const Navbar = ({ isLoggedIn, user, handleLogout }) => {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-pink"></span>
                       </span>
-                    </NavLink>d
+                    </NavLink>
+                     <NavLink
+                      to="/video"
+                      onClick={closeDrawer}
+                      className="block py-2 font-bold text-primary-purple text-lg flex items-center gap-2"
+                    >
+                      Videos
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-pink"></span>
+                      </span>
+                    </NavLink>
                   </li>
                   
                   <div className="h-px bg-gray-200 my-2"></div>
