@@ -145,36 +145,34 @@ const getSalons = asyncHandler(async (req, res) => {
   const keyword = req.query.keyword?.trim();
   const lat = parseFloat(req.query.lat);
   const lng = parseFloat(req.query.lng);
-  const country = req.query.country; // 👈 Get country from frontend request
+  const country = req.query.country;
 
   let salons = [];
   let totalCount = 0;
 
-  // 1. 🚀 PREPARE THE GLOBAL FILTER (Verified + Localization)
+  // 1. GLOBAL FILTER
   const baseQuery = { isVerified: true };
 
-  // 🌍 LOCALIZATION LOGIC: If a country is detected, lock search to that country's phone prefix
+  // 🌍 LOCALIZATION
   if (country) {
     const countryToPrefix = {
-      "Uganda": "256",
-      "Cameroon": "237",
-      "Nigeria": "234",
-      "Kenya": "254",
-      "Tanzania": "255",
-      "Zambia": "260"
+      "Uganda": "256", "Cameroon": "237", "Nigeria": "234",
+      "Kenya": "254", "Tanzania": "255", "Zambia": "260"
     };
     const prefix = countryToPrefix[country];
     if (prefix) {
-      // This regex forces the database to only find numbers starting with the country prefix
       baseQuery.phone = { $regex: `^(\\+)?${prefix}` };
     }
   }
 
+  // 🎲 SHUFFLE LOGIC: Create a seed based on the current date (e.g., "2024-04-13")
+  // This ensures the random order stays stable for the user for the whole day
+  // so Page 2 doesn't show Page 1 salons.
+  const shuffleSeed = new Date().toISOString().split('T')[0];
+
   // ==================== NEAR ME ====================
   if (!isNaN(lat) && !isNaN(lng)) {
     const MAX_DISTANCE_METERS = 500 * 1000;
-    
-    // We combine the Near Me logic with our baseQuery (Localization)
     const matchQuery = { ...baseQuery }; 
     if (keyword) {
       matchQuery.$or = [
@@ -190,7 +188,7 @@ const getSalons = asyncHandler(async (req, res) => {
           distanceField: "distance",
           maxDistance: MAX_DISTANCE_METERS,
           spherical: true,
-          query: matchQuery // 👈 Filter applied here
+          query: matchQuery 
         }
       },
       {
@@ -201,23 +199,28 @@ const getSalons = asyncHandler(async (req, res) => {
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
         }
       },
-      { $sort: { distance: 1 } },
+      { $sort: { distance: 1 } }, // Distance is naturally a good "shuffle" for location
       { $skip: pageSize * (page - 1) },
       { $limit: pageSize }
     ]);
     totalCount = await Salon.countDocuments(matchQuery);
   } 
-  // ==================== NORMAL SEARCH ====================
-  else if (keyword) {
-    const matchQuery = {
-      ...baseQuery, // 👈 Filter applied here (Lock to country)
-      $or: [
+  // ==================== NORMAL SEARCH & SHOW ALL (With Shuffle) ====================
+  else {
+    const matchQuery = { ...baseQuery };
+    if (keyword) {
+      matchQuery.$or = [
         { name: { $regex: keyword, $options: "i" } },
         { city: { $regex: keyword, $options: "i" } }
-      ]
-    };
+      ];
+    }
+
     salons = await Salon.aggregate([
       { $match: matchQuery },
+      // 🚀 THE SHUFFLE STEP:
+      // We add a field that combines the unique ID with our daily seed, then sort by it.
+      { $addFields: { "shuffleOrder": { $concat: ["$name", shuffleSeed] } } },
+      { $sort: { "shuffleOrder": 1 } }, 
       {
         $project: {
           name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
@@ -225,30 +228,10 @@ const getSalons = asyncHandler(async (req, res) => {
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
         }
       },
-      { $sort: { createdAt: -1 } },
       { $skip: pageSize * (page - 1) },
       { $limit: pageSize }
     ]);
     totalCount = await Salon.countDocuments(matchQuery);
-  } 
-  // ==================== SHOW ALL (The "View All" fix) ====================
-  else {
-    // 🚀 This is the specific fix for your issue:
-    // It uses baseQuery which now contains the country filter.
-    salons = await Salon.aggregate([
-      { $match: baseQuery }, // 👈 Filter applied here (Lock to country)
-      {
-        $project: {
-          name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
-          averageRating: 1, isVerified: 1, currency: 1,
-          minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
-        }
-      },
-      { $sort: { createdAt: -1 } },
-      { $skip: pageSize * (page - 1) },
-      { $limit: pageSize }
-    ]);
-    totalCount = await Salon.countDocuments(baseQuery);
   }
 
   res.json({

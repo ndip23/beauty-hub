@@ -107,13 +107,10 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {salons
-                .slice()
-                .sort(() => 0.5 - Math.random())
-                .slice(0, 6)
-                .map((salon) => (
-                  <SalonCard key={salon._id} salon={salon} />
-                ))}
+          
+{salons.map(salon => (
+  <SalonCard key={salon._id} salon={salon} />
+))}
             </div>
           )}
 
