@@ -6,7 +6,7 @@ const fetcher = (url) => apiClient.get(url).then((res) => res.data);
 // export const useSalons = (pageNumber = 1, keyword = "") => 
 //   useSWR(`/api/salons?pageNumber=${pageNumber}&keyword=${keyword}`, fetcher);
 
-export const useSalons = (pageNumber = 1, keyword = "", address = "", city = "") => {
+export const useSalons = (pageNumber = 1, keyword = "", address = "", city = "", country = "") => {
 
   const queryParams = new URLSearchParams();
   
@@ -15,6 +15,8 @@ export const useSalons = (pageNumber = 1, keyword = "", address = "", city = "")
   if (keyword?.trim()) queryParams.append("keyword", keyword.trim());
   if (address?.trim()) queryParams.append("address", address.trim());
   if (city?.trim()) queryParams.append("city", city.trim());
+  // Added only the country parameter update below
+  if (country?.trim()) queryParams.append("country", country.trim());
 
   const url = `/api/salons?${queryParams.toString()}`;
 

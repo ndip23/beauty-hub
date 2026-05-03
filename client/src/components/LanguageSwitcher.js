@@ -5,6 +5,8 @@ const LanguageSwitcher = () => {
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+    // 4. Added this to update the browser's HTML tag attribute
+    document.documentElement.setAttribute("lang", lng);
   };
 
   const languages = [
@@ -20,7 +22,8 @@ const LanguageSwitcher = () => {
           onClick={() => changeLanguage(code)}
           className={`px-3 py-1 rounded-full text-sm font-semibold transition-all duration-300
             ${
-              i18n.language === code
+              // 5. Use startsWith to handle codes like 'en-US' or 'fr-FR'
+              i18n.language?.startsWith(code)
                 ? "bg-gradient-to-r from-primary-pink to-primary-purple text-white shadow-md"
                 : "bg-gray-700 text-gray-200 hover:bg-gray-600"
             }`}

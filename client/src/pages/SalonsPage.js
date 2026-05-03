@@ -266,7 +266,8 @@
 
 // export default SalonsPage
 
-import { useEffect, useState, useCallback } from "react"; // Added useCallback
+import { useEffect, useState, useCallback } from "react";
+import axios from "axios"; // Added for IP detection
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { 
@@ -285,6 +286,10 @@ const SalonsPage = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // 1. ADDED: State for auto-detected country
+  const [userCountry, setUserCountry] = useState("");
+  const [isDetecting, setIsDetecting] = useState(true);
+
   // Extract all params
   const keyword = searchParams.get("keyword") || "";
   const lat = searchParams.get("lat") || "";
@@ -300,15 +305,34 @@ const SalonsPage = () => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showLocationNotice, setShowLocationNotice] = useState(false);
 
+  // 2. UPDATED: Pass userCountry to the hook (5th parameter)
   const { data: salonsData, isLoading: loading, error, mutate } = useSalons(
     pageNumber,
     keyword,
     "",           
     "",           
+    userCountry, // 🚀 Added localization parameter
     lat,
     lng,
     radius
   );
+
+  // 3. ADDED: Detect Country on mount
+  useEffect(() => {
+    const detectLocation = async () => {
+      try {
+        const { data } = await axios.get("https://ipapi.co/json/");
+        if (data.country_name) {
+          setUserCountry(data.country_name);
+        }
+      } catch (err) {
+        console.error("SalonsPage: Country detection failed");
+      } finally {
+        setIsDetecting(false);
+      }
+    };
+    detectLocation();
+  }, []);
 
   useEffect(() => {
     if (salonsData?.salons) {
@@ -316,7 +340,6 @@ const SalonsPage = () => {
     }
   }, [salonsData]);
 
-  // FIXED: Wrapped in useCallback to satisfy ESLint dependency rules
   const getUserLocation = useCallback(() => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
@@ -344,7 +367,6 @@ const SalonsPage = () => {
     );
   }, [setSearchParams]);
 
-  // FIXED: Added dependencies to effect
   useEffect(() => {
     const hasFilter = keyword || (lat && lng);
     if (!hasFilter) {
@@ -354,7 +376,6 @@ const SalonsPage = () => {
     }
   }, [keyword, lat, lng, getUserLocation]);
 
-  // Handle manual keyword search
   const handleSearch = (e) => {
     e.preventDefault();
     const params = new URLSearchParams();
@@ -372,13 +393,19 @@ const SalonsPage = () => {
     setShowLocationNotice(!!(lat && lng));   
   };
 
-  // Reset page on filter change
   useEffect(() => {
     setPageNumber(1);
-  }, [keyword, lat, lng]);
+  }, [keyword, lat, lng, userCountry]); // Reset on country change too
 
   return (
     <div className="bg-white min-h-screen pb-20">
+      {/* 4. ADDED: UI indicator for localized results */}
+      {!isDetecting && userCountry && (
+        <div className="bg-emerald-600 text-white py-2 text-center text-[10px] font-black uppercase tracking-widest">
+           📍 {t("salons.localizedNotice") || "Showing results for"} {userCountry}
+        </div>
+      )}
+
       <section className="bg-[#1D1D1F] text-white py-16 px-6">
         <div className="container mx-auto">
           <h1 className="text-5xl font-black tracking-tighter mb-4">{t("salons.header")}</h1>
@@ -448,9 +475,10 @@ const SalonsPage = () => {
       )}
 
       <div className="container mx-auto px-6 py-12">
-        {loading ? (
+        {loading || isDetecting ? (
           <div className="text-center py-20">
             <FaSpinner className="animate-spin text-5xl text-primary-purple mx-auto" />
+            <p className="mt-4 text-gray-400 font-bold uppercase text-xs tracking-widest">{t("salons.detecting") || "Localizing Directory..."}</p>
           </div>
         ) : error ? (
           <div className="text-center py-20 bg-red-50 rounded-[3rem] border border-red-100 max-w-xl mx-auto p-10">
@@ -462,7 +490,7 @@ const SalonsPage = () => {
           </div>
         ) : salons.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-xl text-gray-500">No salons found. Try a different search or location.</p>
+            <p className="text-xl text-gray-500 font-bold italic">No salons found in {userCountry || "this area"}.</p>
           </div>
         ) : (
           <>

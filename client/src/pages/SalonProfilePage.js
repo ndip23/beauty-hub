@@ -124,17 +124,32 @@ const SalonProfilePage = () => {
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Local Currency</label>
               <select name="currency" value={formData.currency} onChange={handleChange} className="w-full p-5 bg-[#F5F5F7] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary-purple font-bold">
-                <option value="XAF">XAF (CFA Franc)</option>
-                <option value="NGN">NGN (Naira)</option>
-                <option value="GHS">GHS (Cedi)</option>
-                <option value="USD">USD (Dollar)</option>
-                <option value="UGX">UGX (Uganda)</option>
-                <option value="XOF">XOF (Gabon)</option>
-                <option value="KES">KES (Kenya)</option>
-                <option value="TZS">TZS (Tanzania)</option>
-                <option value="ZMW">ZMW (Zimbabwe)</option>
-                <option value="RWF">RWF (Rwanda)</option>
-                <option value="ZMW">ZMW (Zambia)</option>
+                <option value="XOF">XOF (Benin)</option>
+<option value="XOF">XOF (Burkina Faso)</option>
+<option value="XAF">XAF (Cameroon)</option>
+<option value="XAF">XAF (Congo Brazzaville)</option>
+<option value="CDF">CDF (Congo DRC)</option>
+<option value="XOF">XOF (Cote D'Ivoire)</option>
+<option value="XAF">XAF (Gabon)</option>
+<option value="GNF">GNF (Guinea Conakry)</option>
+<option value="INR">INR (India)</option>
+<option value="IDR">IDR (Indonesia)</option>
+<option value="KES">KES (Kenya)</option>
+<option value="MYR">MYR (Malaysia)</option>
+<option value="XOF">XOF (Mali)</option>
+<option value="XOF">XOF (Niger)</option>
+<option value="NGN">NGN (Nigeria)</option>
+<option value="PHP">PHP (Philippines)</option>
+<option value="RWF">RWF (Rwanda)</option>
+<option value="XOF">XOF (Senegal)</option>
+<option value="KRW">KRW (South Korea)</option>
+<option value="TZS">TZS (Tanzania)</option>
+<option value="THB">THB (Thailand)</option>
+<option value="XOF">XOF (Togo)</option>
+<option value="UGX">UGX (Uganda)</option>
+<option value="AED">AED (United Arab Emirates)</option>
+<option value="ZMW">ZMW (Zambia)</option>
+<option value="USD">USD (Dollar)</option>
               </select>
             </div>
           </div>

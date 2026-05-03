@@ -1,27 +1,58 @@
+import { useEffect, useState } from "react"; // Added useEffect and useState
+import axios from "axios"; // Added axios for IP detection
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useSalons } from "../api/swr";
 import SalonCard from "../components/SalonCard";
 import SalonSearchBar from "../components/SalonSearchBar";
-import { FaArrowRight, FaSpinner, FaExclamationTriangle } from "react-icons/fa";
+import { FaArrowRight, FaSpinner, FaExclamationTriangle, FaMapMarkerAlt } from "react-icons/fa";
 import Button from "../components/Button";
 
 const HomePage = () => {
   const { t } = useTranslation();
   
-  // We call the API. It now returns { salons, pages, totalSalons }
+  // 1. Logic to detect user country via IP
+  const [userCountry, setUserCountry] = useState("");
+  const [detecting, setDetecting] = useState(true);
+
+  useEffect(() => {
+    const detectLocation = async () => {
+      try {
+        // Using a free IP geolocation service
+        const { data } = await axios.get("https://ipapi.co/json/");
+        if (data.country_name) {
+          setUserCountry(data.country_name);
+        }
+      } catch (err) {
+        console.error("Auto-location detection failed.");
+      } finally {
+        setDetecting(false);
+      }
+    };
+    detectLocation();
+  }, []);
+
+  // 2. We pass the detected country to your existing hook logic
   const {
     data: salonsData,
     isLoading: loading,
     error,
     mutate
-  } = useSalons(1); // Fetch page 1 for the home page
+  } = useSalons(1, "", "", "", userCountry); // Added userCountry as the 5th parameter
 
   // Extract the salons array safely
   const salons = salonsData?.salons || [];
 
   return (
     <div className="bg-white">
+      {/* 3. Location Banner (Optional but recommended for UX) */}
+      {!detecting && userCountry && (
+        <div className="bg-gradient-to-r from-primary-purple to-primary-pink text-white py-2 text-center text-[10px] font-black uppercase tracking-[0.2em] shadow-inner">
+           <FaMapMarkerAlt className="inline mr-2 mb-0.5 animate-bounce" /> 
+           {t("homePage.showingNear") || "Showing best salons in"} {userCountry}
+        </div>
+      )}
+
       <section className="bg-white py-16 px-4">
         <div className="container mx-auto">
           <div className="mb-8">
@@ -34,7 +65,9 @@ const HomePage = () => {
                 {t("homePage.featuredSalons.title")}
               </h2>
               <p className="text-lg text-text-muted">
-                {t("homePage.featuredSalons.description")}
+                {userCountry 
+                  ? `${t("homePage.featuredSalons.nearYou")} ${userCountry}`
+                  : t("homePage.featuredSalons.description")}
               </p>
             </div>
             <Link
@@ -54,7 +87,6 @@ const HomePage = () => {
               </p>
             </div>
           ) : error ? (
-            /* BOSS REQUIREMENT: FIX ERROR HANDLING */
             <div className="text-center py-16 bg-red-50 border border-red-100 rounded-[2.5rem] max-w-2xl mx-auto shadow-sm p-10">
               <FaExclamationTriangle className="text-red-500 text-5xl mx-auto mb-4" />
               <h3 className="font-black text-2xl text-red-700">
@@ -75,7 +107,6 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* SHUFFLE & LIMIT TO 6 FOR PERFORMANCE */}
               {salons
                 .slice()
                 .sort(() => 0.5 - Math.random())

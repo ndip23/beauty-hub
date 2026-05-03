@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   FaBars,
   FaCalendarAlt,
@@ -13,7 +14,9 @@ import {
   FaTachometerAlt,
   FaTimes,
   FaSignOutAlt,
-  FaCreditCard 
+  FaCreditCard,
+  FaVideo,
+  FaPlayCircle
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -39,27 +42,20 @@ const SidebarLink = ({ to, icon: Icon, children, onClick }) => (
 );
 
 const SalonOwnerLayout = ({ children, activePlan }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { logout, user } = useAuth();
   const location = useLocation();
 
-  // 1. Pages that MUST always be visible (Billing & Pay)
   const isBillingPage = location.pathname.includes("billing");
   const isPaymentPage = location.pathname.includes("pay"); 
   
-  // 2. STATED-BASED BLOCKADE LOGIC
-  // We check if the plan is actually Active. 
-  // If activePlan is an object like { status: "Pending" }, this will correctly block it.
   const isPlanValid = activePlan && (activePlan.status === "Active" || activePlan.status === "Completed");
-  
-  // 3. ADMIN OVERRIDE CHECK
-  // If admin has manually verified (user.isVerified), they bypass the blockade entirely.
   const hasAccess = isPlanValid || user?.isVerified;
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden text-slate-900 font-sans">
       
-      {/* Mobile Menu Trigger */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -69,7 +65,6 @@ const SalonOwnerLayout = ({ children, activePlan }) => {
         </button>
       )}
 
-      {/* Sidebar Overlay (Mobile) */}
       {open && (
         <div 
           onClick={() => setOpen(false)} 
@@ -77,7 +72,6 @@ const SalonOwnerLayout = ({ children, activePlan }) => {
         />
       )}
 
-      {/* ▓ Sidebar */}
       <aside
         className={`fixed lg:static top-0 left-0 h-full w-64 z-[65] p-6 flex flex-col
           bg-gradient-to-b from-purple-800 to-purple-900 text-white transition-transform duration-500
@@ -93,27 +87,26 @@ const SalonOwnerLayout = ({ children, activePlan }) => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto scrollbar-hide">
-          <SidebarLink to="/salon-owner/dashboard" icon={FaTachometerAlt}>Dashboard</SidebarLink>
-          <SidebarLink to="/salon-owner/appointments" icon={FaCalendarAlt}>Appointments</SidebarLink>
-          <SidebarLink to="/salon-owner/profile" icon={FaStore}>Salon Profile</SidebarLink>
-          <SidebarLink to="/salon-owner/services" icon={FaConciergeBell}>Services</SidebarLink>
+          <SidebarLink to="/salon-owner/dashboard" icon={FaTachometerAlt}>{t("ownerSidebar.dashboard")}</SidebarLink>
+          <SidebarLink to="/salon-owner/appointments" icon={FaCalendarAlt}>{t("ownerSidebar.appointments")}</SidebarLink>
+          <SidebarLink to="/salon-owner/profile" icon={FaStore}>{t("ownerSidebar.profile")}</SidebarLink>
+          <SidebarLink to="/salon-owner/services" icon={FaConciergeBell}>{t("ownerSidebar.services")}</SidebarLink>
+          <SidebarLink to="/salon-owner/billing" icon={FaCreditCard}>{t("ownerSidebar.billing")}</SidebarLink>
+          <SidebarLink to="/salon-owner/messages" icon={FaCommentDots}>{t("ownerSidebar.messages")}</SidebarLink>
+          <SidebarLink to="/salon-owner/reviews" icon={FaStar}>{t("ownerSidebar.reviews")}</SidebarLink>
+          <SidebarLink to="/salon-owner/analytics" icon={FaChartLine}>{t("ownerSidebar.analytics")}</SidebarLink>
           
-          <SidebarLink to="/salon-owner/billing" icon={FaCreditCard}>
-            Subscription & Billing
-          </SidebarLink>
-
-          <SidebarLink to="/salon-owner/messages" icon={FaCommentDots}>Messages</SidebarLink>
-          <SidebarLink to="/salon-owner/reviews" icon={FaStar}>Reviews</SidebarLink>
-          <SidebarLink to="/salon-owner/analytics" icon={FaChartLine}>Analytics</SidebarLink>
-          <SidebarLink to="/salon-owner/post-video" icon={FaChartLine}>Post a video</SidebarLink>
-          <SidebarLink to="/salon-owner/my-videos" icon={FaChartLine}>my videos</SidebarLink>
-          <SidebarLink to="/salon-owner/settings" icon={FaCog}>Settings</SidebarLink>
+          {/* UPDATED VIDEO LINKS WITH PROPER ICONS */}
+          <SidebarLink to="/salon-owner/post-video" icon={FaVideo}>{t("ownerSidebar.postVideo")}</SidebarLink>
+          <SidebarLink to="/salon-owner/my-videos" icon={FaPlayCircle}>{t("ownerSidebar.myVideos")}</SidebarLink>
+          
+          <SidebarLink to="/salon-owner/settings" icon={FaCog}>{t("ownerSidebar.settings")}</SidebarLink>
 
           <button 
             onClick={logout} 
             className="w-full mt-6 flex items-center gap-3 px-4 py-3 rounded-xl text-purple-200 hover:bg-red-500/20 hover:text-red-100 transition-all font-bold"
           >
-            <FaSignOutAlt size={18} /> Logout
+            <FaSignOutAlt size={18} /> {t("ownerSidebar.logout")}
           </button>
         </nav>
         
@@ -122,34 +115,31 @@ const SalonOwnerLayout = ({ children, activePlan }) => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto p-4 md:p-10 relative bg-[#FAF9F6]">
         
-        {/* THE BLOCKADE: Check if access is denied and we aren't on allowed pages */}
         {!hasAccess && !isBillingPage && !isPaymentPage ? (
           <div className="flex items-center justify-center min-h-[80vh]">
             <div className="max-w-xl w-full bg-white border-2 border-yellow-50 p-10 rounded-[3rem] shadow-2xl text-center animate-in zoom-in duration-500">
                 <div className="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-600 text-3xl">
                    ⚠️
                 </div>
-                <h2 className="text-3xl font-black text-gray-900 tracking-tight">Account Inactive</h2>
+                <h2 className="text-3xl font-black text-gray-900 tracking-tight">{t("blockade.title")}</h2>
                 <p className="text-gray-500 mt-4 text-lg leading-relaxed font-medium">
-                    Your access to business tools is restricted. Please select a subscription plan to activate your salon and start receiving bookings.
+                    {t("blockade.desc")}
                 </p>
                 <div className="mt-10">
                   <Link to="/salon-owner/billing">
                     <button className="bg-purple-600 text-white px-12 py-4 rounded-full font-black text-lg shadow-xl hover:bg-purple-700 hover:scale-105 transition-all">
-                      Choose Your Plan &rarr;
+                      {t("blockade.btn")} &rarr;
                     </button>
                   </Link>
                 </div>
                 <p className="text-gray-400 text-xs mt-6 font-bold uppercase tracking-widest">
-                  Need help? Contact support@beautyheaven.site
+                  {t("blockade.help")} support@beautyheaven.site
                 </p>
             </div>
           </div>
         ) : (
-          /* Actual Dashboard Pages */
           <div className="animate-in fade-in duration-700 h-full">
             {children}
           </div>

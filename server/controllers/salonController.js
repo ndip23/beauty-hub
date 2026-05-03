@@ -145,17 +145,37 @@ const getSalons = asyncHandler(async (req, res) => {
   const keyword = req.query.keyword?.trim();
   const lat = parseFloat(req.query.lat);
   const lng = parseFloat(req.query.lng);
+  const country = req.query.country; // 👈 Get country from frontend request
 
   let salons = [];
   let totalCount = 0;
 
-  // 🚀 GLOBAL FILTER: Only show salons that are VERIFIED
+  // 1. 🚀 PREPARE THE GLOBAL FILTER (Verified + Localization)
   const baseQuery = { isVerified: true };
+
+  // 🌍 LOCALIZATION LOGIC: If a country is detected, lock search to that country's phone prefix
+  if (country) {
+    const countryToPrefix = {
+      "Uganda": "256",
+      "Cameroon": "237",
+      "Nigeria": "234",
+      "Kenya": "254",
+      "Tanzania": "255",
+      "Zambia": "260"
+    };
+    const prefix = countryToPrefix[country];
+    if (prefix) {
+      // This regex forces the database to only find numbers starting with the country prefix
+      baseQuery.phone = { $regex: `^(\\+)?${prefix}` };
+    }
+  }
 
   // ==================== NEAR ME ====================
   if (!isNaN(lat) && !isNaN(lng)) {
     const MAX_DISTANCE_METERS = 500 * 1000;
-    const matchQuery = { ...baseQuery }; // Include filter here
+    
+    // We combine the Near Me logic with our baseQuery (Localization)
+    const matchQuery = { ...baseQuery }; 
     if (keyword) {
       matchQuery.$or = [
         { name: { $regex: keyword, $options: "i" } },
@@ -175,7 +195,7 @@ const getSalons = asyncHandler(async (req, res) => {
       },
       {
         $project: {
-          name: 1, slug: 1, city: 1, address: 1, photos: 1,
+          name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
           averageRating: 1, isVerified: 1, currency: 1,
           distance: { $round: [{ $divide: ["$distance", 1000] }, 1] },
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
@@ -190,7 +210,7 @@ const getSalons = asyncHandler(async (req, res) => {
   // ==================== NORMAL SEARCH ====================
   else if (keyword) {
     const matchQuery = {
-      ...baseQuery, // 👈 Filter applied here
+      ...baseQuery, // 👈 Filter applied here (Lock to country)
       $or: [
         { name: { $regex: keyword, $options: "i" } },
         { city: { $regex: keyword, $options: "i" } }
@@ -200,7 +220,7 @@ const getSalons = asyncHandler(async (req, res) => {
       { $match: matchQuery },
       {
         $project: {
-          name: 1, slug: 1, city: 1, address: 1, photos: 1,
+          name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
           averageRating: 1, isVerified: 1, currency: 1,
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
         }
@@ -211,13 +231,15 @@ const getSalons = asyncHandler(async (req, res) => {
     ]);
     totalCount = await Salon.countDocuments(matchQuery);
   } 
-  // ==================== SHOW ALL ====================
+  // ==================== SHOW ALL (The "View All" fix) ====================
   else {
+    // 🚀 This is the specific fix for your issue:
+    // It uses baseQuery which now contains the country filter.
     salons = await Salon.aggregate([
-      { $match: baseQuery }, // 👈 Filter applied here
+      { $match: baseQuery }, // 👈 Filter applied here (Lock to country)
       {
         $project: {
-          name: 1, slug: 1, city: 1, address: 1, photos: 1,
+          name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
           averageRating: 1, isVerified: 1, currency: 1,
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
         }
@@ -237,7 +259,6 @@ const getSalons = asyncHandler(async (req, res) => {
     totalSalons: totalCount,
   });
 });
-
 // const getSalons = asyncHandler(async (req, res) => {
  
 //   const page = Number(req.query.page) || Number(req.query.pageNumber) || 1;

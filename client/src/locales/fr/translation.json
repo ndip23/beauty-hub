@@ -9,7 +9,8 @@
     "favorites": "Favoris",
     "compare": "Comparer",
     "messages": "Messages",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "promo": "Promo"
   },
   "footer": {
     "title": "BeautyHeaven",
@@ -87,17 +88,6 @@
     "responseTime": "Répond en ~ une heure",
     "online": "En ligne",
     "viewAndBook": "Voir & Réserver"
-  },
-  "ownerSidebar": {
-    "ownerPortal": "PORTAIL PROPRIÉTAIRE",
-    "dashboard": "Tableau de bord",
-    "appointments": "Rendez-vous",
-    "mySalonProfile": "Profil de mon salon",
-    "services": "Services",
-    "messages": "Messages",
-    "reviews": "Avis",
-    "analytics": "Analytique",
-    "settings": "Paramètres"
   },
   "saloonsearch": {
     "placeholder": "Recherchez des salons, services ou lieux...",
@@ -178,6 +168,114 @@
     "phoneNumber": "+237687950618",
     "supportEmail": "digitecworks@gmail.com"
   },
+  "recovery": {
+  "title": "Récupération de compte",
+  "subtitle": "Vérifiez votre identité pour réinitialiser le mot de passe.",
+  "identifierLabel": "Nom d'utilisateur ou Email",
+  "salonLabel": "Contrôle de sécurité : Nom de votre salon",
+  "salonPlaceholder": "Exactement comme indiqué dans l'annuaire",
+  "passwordLabel": "Nouveau mot de passe",
+  "button": "Vérifier et mettre à jour",
+  "footer": "Vérification d'identité sécurisée",
+  "shortPassword": "Nouveau mot de passe trop court",
+  "success": "Mot de passe mis à jour avec succès"
+},
+"offerPage": {
+  "back": "Retour",
+  "titleMain": "Obtenez Plus de",
+  "titleSub": "Clients en Ligne.",
+  "intro": "Vous êtes dans le domaine des soins de la peau ou de la beauté et vous voulez obtenir plus de clients en ligne ? Nous vous aiderons à créer un profil professionnel qui servira de site web, de catalogue et de liste de prix, afin que les clients puissent voir vos services et vous contacter facilement. Nous ferons cela pour seulement 5 $. Après cela, nous vous aiderons également à promouvoir votre entreprise GRATUITEMENT pendant un mois. Cliquez sur le lien ci-dessous pour discuter avec nous sur WhatsApp et commencer dès maintenant !",
+  "btnStart": "Commencer Maintenant",
+  "cardTitle": "Votre profil professionnel fait office de",
+  "cardItalic": "Site Web, Catalogue et Liste de Prix.",
+  "features": {
+    "profile": "Profil d'Entreprise",
+    "catalog": "Catalogue de Services",
+    "prices": "Liste de Prix Auto",
+    "booking": "Réservation WhatsApp"
+  },
+  "feeLabel": "Frais de Configuration Totaux",
+  "promoTitle": "Promo GRATUITE",
+  "promoDesc": "1 mois de marketing inclus.",
+  "listingTitle": "Inscription Instantanée",
+  "listingDesc": "En ligne sous 24 heures.",
+  "effortTitle": "Zéro Effort",
+  "effortDesc": "On s'occupe de la technique."
+},
+"basicPay": {
+  "title": "Paiement",
+  "promoTag": "Activation Promo Exclusive à 5 $",
+  "phoneLabel": "Numéro de téléphone enregistré",
+  "phonePlaceholder": "Ex : 237674772569",
+  "locationLabel": "Lieu de paiement",
+  "totalLabel": "Montant Total",
+  "btnPay": "Vérifier et payer maintenant",
+  "btnVerifying": "Vérification...",
+  "errorPhone": "Veuillez entrer votre numéro de téléphone enregistré.",
+  "errorPlan": "Erreur lors du chargement des détails du forfait.",
+  "errorGeneric": "Utilisateur non trouvé ou échec du paiement."
+},
+"videoUpload": {
+  "header": "🎬 Créer une nouvelle vidéo",
+  "noVideo": "Aucune vidéo sélectionnée",
+  "chooseBtn": "📁 Choisir une vidéo",
+  "captionPlaceholder": "Écrire une légende...",
+  "btnUpload": "🚀 Publier la vidéo",
+  "btnUploading": "Téléchargement...",
+  "success": "Vidéo publiée avec succès 🎉",
+  "errorNoFile": "Veuillez sélectionner une vidéo",
+  "errorFail": "Échec du téléchargement"
+},
+"videoCard": {
+  "liked": "Aimé ❤️",
+  "alreadyLiked": "Déjà aimé",
+  "loadCommentsErr": "Échec du chargement des commentaires",
+  "commentAdded": "Commentaire ajouté 💬",
+  "commentFail": "Échec de l'ajout du commentaire",
+  "fillFields": "Veuillez remplir tous les champs",
+  "shareTitle": "Regardez cette vidéo",
+  "copySuccess": "Lien copié dans le presse-papiers",
+  "shareFail": "Échec du partage",
+  "shared": "Partagé 🔁",
+  "commentsHeader": "Commentaires",
+  "noComments": "Pas encore de commentaires",
+  "namePlaceholder": "Votre nom",
+  "commentPlaceholder": "Écrire un commentaire...",
+  "btnSend": "Envoyer",
+  "btnSending": "Envoi en cours..."
+},
+"myVideos": {
+  "title": "Mes Vidéos 🎬",
+  "emptyState": "Vous n'avez pas encore publié de vidéos",
+  "loadError": "Échec du chargement de vos vidéos",
+  "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette vidéo ?",
+  "deleteSuccess": "Vidéo supprimée",
+  "deleteError": "Échec de la suppression",
+  "noCaption": "Sans légende",
+  "likes": "J'aime",
+  "comments": "Commentaires"
+},
+"ownerSidebar": {
+  "portal": "Portail Propriétaire",
+  "dashboard": "Tableau de Bord",
+  "appointments": "Rendez-vous",
+  "profile": "Profil du Salon",
+  "services": "Services",
+  "billing": "Abonnement et Facturation",
+  "messages": "Messages",
+  "reviews": "Avis",
+  "analytics": "Analytiques",
+  "postVideo": "Publier une Vidéo",
+  "myVideos": "Mes Vidéos",
+  "settings": "Paramètres",
+  "logout": "Déconnexion"
+},
+"blockade": {
+  "title": "Compte Inactif",
+  "desc": "Votre accès aux outils professionnels est limité. Veuillez sélectionner un abonnement pour activer votre salon et commencer à recevoir des réservations.",
+  "btn": "Choisir un Forfait",
+  "help": "Besoin d'aide ? Contactez"
+},
   "settings": {
     "accountSettings": "Paramètres du compte",
     "saveChanges": "Enregistrer les modifications",
@@ -195,7 +293,8 @@
     "dangerZoneDescription": "Soyez prudent, ces actions sont irréversibles.",
     "deleteAccount": "Supprimer le compte",
     "deleteAccountDescription": "Supprimez définitivement votre compte et toutes les données associées.",
-    "successMessage": "Paramètres enregistrés avec succès !"
+    "successMessage": "Paramètres enregistrés avec succès !",
+    "language": "Langue"
   },
   "dashboard": {
     "welcomeBack": "Bon retour, {{name}} !",
