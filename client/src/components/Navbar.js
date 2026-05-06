@@ -69,8 +69,32 @@ const Navbar = ({ isLoggedIn, user, handleLogout }) => {
                   <NavItem to="/salon-owner/post-video">{t("ownerSidebar.postVideo")}</NavItem>
                 </>
               )}
-              <NavItem to="/video">🎬 Videos</NavItem>
-              <NavItem to="/promo">🔍 {t("header.promo")}</NavItem>
+              <li>
+                    <NavLink
+                      to="/video"
+                      onClick={closeDrawer}
+                      className="block py-2 font-bold text-primary-purple text-lg flex items-center gap-2"
+                    >
+                      Videos
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-pink"></span>
+                      </span>
+                    </NavLink>
+                  </li>
+              <li>
+                    <NavLink
+                      to="/promo"
+                      onClick={closeDrawer}
+                      className="block py-2 font-bold text-primary-purple text-lg flex items-center gap-2"
+                    >
+                      Promo Offer
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-pink"></span>
+                      </span>
+                    </NavLink>
+                  </li>
             </>
           ) : (
             <>
@@ -167,9 +191,19 @@ const Navbar = ({ isLoggedIn, user, handleLogout }) => {
                   <NavItem to="/become-salon-owner" onClick={closeDrawer}>
                     {t("header.addBusiness")}
                   </NavItem>
-                  <NavItem to="/contact" onClick={closeDrawer}>
-                    {t("header.contact")}
-                  </NavItem>
+                  <li>
+                    <NavLink
+                      to="/video"
+                      onClick={closeDrawer}
+                      className="block py-2 font-bold text-primary-purple text-lg flex items-center gap-2"
+                    >
+                      Videos
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-pink"></span>
+                      </span>
+                    </NavLink>
+                  </li>
 
                   {/* NEW PROMO LINK FOR MOBILE */}
                   <li>
