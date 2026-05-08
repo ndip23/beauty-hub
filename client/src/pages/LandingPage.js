@@ -89,7 +89,6 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto">
           <SectionTitle>How It Works</SectionTitle>
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center relative">
-            {/* Dashed line connecting steps on larger screens */}
             <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-gray-300 transform -translate-y-1/2"></div>
             
             {[
