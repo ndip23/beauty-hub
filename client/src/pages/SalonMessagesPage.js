@@ -137,28 +137,26 @@
 
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react"; // Added useMemo
 import { useTranslation } from "react-i18next";
 import { FaPaperPlane, FaSpinner } from "react-icons/fa";
-import { useMyConversations } from "../api/swr";     // ← Changed here
+import { useMyConversations } from "../api/swr";     
 import { useAuth } from "../context/AuthContext";
 
 const SalonMessagesPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-
   const [selectedConversation, setSelectedConversation] = useState(null);
 
   const {
     data: conversationsData,
     isLoading: loading,
     error,
-    mutate
   } = useMyConversations();
 
-  const conversations = conversationsData?.conversations || [];
-console.log(conversations)
-  // Auto-select first conversation
+  // FIX: Wrap in useMemo to stabilize dependencies for useEffect
+  const conversations = useMemo(() => conversationsData?.conversations || [], [conversationsData]);
+
   useEffect(() => {
     if (conversations.length > 0 && !selectedConversation) {
       setSelectedConversation(conversations[0]);
@@ -205,8 +203,8 @@ console.log(conversations)
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[75vh]">
         {/* Conversations List */}
-        <div className="md:col-span-1 bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col">
-          <div className="p-4 border-b font-semibold">All Conversations</div>
+        <div className="md:col-span-1 bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col border border-gray-100">
+          <div className="p-4 border-b font-black text-xs uppercase tracking-widest text-gray-400">All Conversations</div>
           <div className="flex-1 overflow-y-auto">
             {conversations.length > 0 ? (
               conversations.map((convo) => {
@@ -223,21 +221,21 @@ console.log(conversations)
                       <p className="font-bold text-gray-800">
                         {other?.name || "Guest"}
                         {convo.isGuestConversation && (
-                          <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Guest</span>
+                          <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">GUEST</span>
                         )}
                       </p>
                     </div>
                     <p className="text-sm text-gray-600 truncate mt-1">
                       {getLastMessage(convo)}
                     </p>
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase">
                       {new Date(convo.updatedAt).toLocaleDateString()}
                     </p>
                   </div>
                 );
               })
             ) : (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-400 font-medium italic">
                 No conversations yet
               </div>
             )}
@@ -245,55 +243,51 @@ console.log(conversations)
         </div>
 
         {/* Chat Area */}
-        <div className="md:col-span-3 bg-white rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        <div className="md:col-span-3 bg-white rounded-2xl shadow-sm flex flex-col overflow-hidden border border-gray-100">
           {selectedConversation ? (
             <>
-              <div className="p-5 border-b flex items-center gap-3">
-                <div className="font-bold text-lg">
+              <div className="p-5 border-b flex items-center gap-3 bg-white">
+                <div className="font-black text-xl text-gray-900 tracking-tight">
                   {getOtherParticipant(selectedConversation)?.name}
                 </div>
                 {selectedConversation.isGuestConversation && (
-                  <span className="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full">
+                  <span className="text-[10px] bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-black uppercase">
                     Guest User
                   </span>
                 )}
               </div>
 
-              <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-gray-50">
-                {selectedConversation.messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${msg.sender?._id === user?._id || msg.sender === user?._id ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[75%] px-4 py-3 rounded-2xl ${
-                        msg.sender?._id === user?._id || msg.sender === user?._id
-                          ? "bg-primary-purple text-white"
-                          : "bg-white shadow"
-                      }`}
-                    >
-                      {msg.text}
+              <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-[#F5F5F7]">
+                {selectedConversation.messages.map((msg, index) => {
+                   const isMe = msg.sender?._id === user?._id || msg.sender === user?._id;
+                   return (
+                    <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                        <div className={`max-w-[75%] px-4 py-3 rounded-2xl font-medium text-sm shadow-sm ${
+                            isMe ? "bg-primary-purple text-white rounded-tr-none" : "bg-white text-gray-800 rounded-tl-none border border-gray-100"
+                        }`}>
+                        {msg.text}
+                        </div>
                     </div>
-                  </div>
-                ))}
+                   );
+                })}
               </div>
 
               {/* Message Input */}
               <div className="p-4 border-t bg-white">
-                <div className="relative">
+                <form className="relative" onSubmit={(e) => e.preventDefault()}>
                   <input
                     type="text"
                     placeholder="Type your message..."
-                    className="w-full p-4 pr-14 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-primary-purple"
+                    className="w-full p-4 pr-14 rounded-2xl border-none bg-gray-50 focus:ring-2 focus:ring-primary-purple outline-none font-medium"
                   />
-                  <button className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-purple hover:text-purple-700">
-                    <FaPaperPlane size={22} />
+                  <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-purple hover:text-purple-700 p-2">
+                    <FaPaperPlane size={20} />
                   </button>
-                </div>
+                </form>
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
+            <div className="flex items-center justify-center h-full text-gray-400 font-bold italic">
               Select a conversation to start chatting
             </div>
           )}

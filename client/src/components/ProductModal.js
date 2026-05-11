@@ -16,7 +16,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
     isAvailable: true,
   });
 
-  const [isUploading, setIsUploading] = useState(false);
+  const [ setIsUploading] = useState(false);
 
   useEffect(() => {
     if (initialData) {

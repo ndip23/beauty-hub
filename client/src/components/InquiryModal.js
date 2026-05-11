@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaSpinner, FaPaperPlane } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Button from "./Button";
 import { API } from "../api";
-
 
 const InquiryModal = ({ isOpen, onClose, salonId, salonName }) => {
   const [formData, setFormData] = useState({
@@ -15,29 +14,28 @@ const InquiryModal = ({ isOpen, onClose, salonId, salonName }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
-    if (!formData.guestName || !formData.guestPhone || !formData.message) {
+    if (!formData.guestName.trim() || !formData.guestPhone.trim() || !formData.message.trim()) {
       return toast.error("Please fill in all fields");
     }
 
     setLoading(true);
 
     try {
-      const response = await API.post(`/api/messages/${salonId}/inquiries`, {
+      await API.post(`/api/messages/${salonId}/inquiries`, {
         guestName: formData.guestName.trim(),
         guestPhone: formData.guestPhone.trim(),
         message: formData.message.trim(),
       });
-
       toast.success("Your message has been sent successfully! ✅");
-      onClose();
       
-      // Reset form
+      // Reset and close
       setFormData({ guestName: "", guestPhone: "", message: "" });
+      onClose();
     } catch (error) {
       console.error(error.message);
-      toast.error(error.response?.data?.message || "Failed to send message. Please try again.");
+      toast.error(error.response?.data?.message || "Failed to send message.");
     } finally {
       setLoading(false);
     }
@@ -46,73 +44,69 @@ const InquiryModal = ({ isOpen, onClose, salonId, salonName }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-md w-full max-h-[70vh] flex flex-col overflow-hidden shadow-2xl">
-        
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-hidden">
+      <div className="bg-white rounded-[2.5rem] max-w-md w-full shadow-2xl flex flex-col animate-in zoom-in duration-300">
+
         {/* Header */}
-        <div className="px-6 py-4 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+        <div className="px-8 py-6 border-b flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold">Send Message</h2>
-            <p className="text-gray-600 text-sm">To: {salonName}</p>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Send Message</h2>
+            <p className="text-primary-purple font-bold text-xs uppercase tracking-widest mt-1">To: {salonName}</p>
           </div>
-          <button 
-            onClick={onClose} 
-            className="text-2xl text-gray-400 hover:text-gray-700 transition-colors"
-          >
-            <FaTimes />
+          <button onClick={onClose} className="p-2 bg-gray-50 rounded-full text-gray-400 hover:text-red-500 transition-all">
+            <FaTimes size={20} />
           </button>
         </div>
 
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Body */}
+        <div className="p-8 space-y-6">
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Your Full Name</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Your Full Name</label>
               <input
                 type="text"
                 required
                 value={formData.guestName}
                 onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-primary-purple outline-none font-bold"
                 placeholder="John Doe"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Phone / WhatsApp Number</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Phone / WhatsApp</label>
               <input
                 type="tel"
                 required
                 value={formData.guestPhone}
                 onChange={(e) => setFormData({ ...formData, guestPhone: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="+234 801 234 5678"
+                className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-primary-purple outline-none font-bold"
+                placeholder="+237 ..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Your Message</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Message</label>
               <textarea
                 required
-                rows={5}
+                rows={4}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                placeholder="Hi, I would like to know more about your services and availability..."
+                className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-primary-purple outline-none font-medium resize-none"
+                placeholder="I'm interested in your services..."
               />
             </div>
-          </form>
-        </div>
+          </div>
 
-        {/* Footer (Sticky) */}
-        <div className="p-6 border-t bg-white sticky bottom-0">
-          <Button 
+          <Button
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-purple-600 border-radius-10 text-white py-4 text-lg font-semibold"
+            variant="gradient"
+            className="w-full !py-5 rounded-full text-lg font-black shadow-xl flex items-center justify-center gap-3 active:scale-95"
           >
-            {loading ? "Sending Message..." : "Send Message"}
+            {loading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane size={18} />}
+            {loading ? "Sending..." : "Send Message"}
           </Button>
         </div>
       </div>

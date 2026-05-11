@@ -18,7 +18,6 @@ import {
   FaVideo,
   FaPlayCircle,
   FaProductHunt,
-  FaAddressBook
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import LanguageSwitcher from "./LanguageSwitcher";
