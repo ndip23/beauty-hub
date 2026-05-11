@@ -61,6 +61,8 @@ import VideoUpload from "./components/video/VideoUpload";
 import Feed from "./components/video/VideoFeed";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import MyVideos from "./components/video/MyVideos";
+import SalonProductsPage from "./pages/SalonProductPage";
+import SalonShopPage from "./pages/SalonShariableLinkPage";
 const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
   return (
@@ -152,7 +154,7 @@ function App() {
           <Route path="/video" element={<MainLayout><Feed /></MainLayout>} />
           <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
           <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
-
+<Route path="/shop/:slug" element={<MainLayout><SalonShopPage /></MainLayout>}  />
           <Route path="/login" element={<MainLayout><LoginPage /></MainLayout>} />
           <Route path="/register" element={<MainLayout><RegisterPage /></MainLayout>} />
             <Route path="/pay-basic" element={<MainLayout><BasicPlanPay /></MainLayout>} />
@@ -188,6 +190,7 @@ function App() {
                   <Route path="dashboard" element={<SalonDashboardPage />} />
                   <Route path="appointments" element={<SalonAppointmentsPage />} />
                   <Route path="profile" element={<SalonProfilePage />} />
+                  <Route path="products" element={<SalonProductsPage />} />
                   <Route path="services" element={<SalonServicesPage />} />
                   <Route path="messages" element={<SalonMessagesPage />} />
                   <Route path="reviews" element={<SalonReviewsPage />} />

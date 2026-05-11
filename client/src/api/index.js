@@ -4,8 +4,8 @@ import axios from "axios";
 const isProduction = window.location.hostname !== "localhost";
 
 const API_BASE_URL = isProduction 
-  ? "https://beauty-heaven-api.vercel.app/"  // YOUR BACKEND LINK
-  : "http://localhost:8000";                // YOUR LOCAL PORT
+  ? "https://beauty-heaven-api.vercel.app/"  
+  : "http://localhost:8000";                
 
 export const API = axios.create({ baseURL: API_BASE_URL });
 
@@ -130,3 +130,19 @@ export const fetchReviews = (salonId) =>
   API.get(`/api/salons/${salonId}/reviews`);
 export const getPlanBySlug = (slug) => API.get(`api/subscription-types/slug/${slug}`);
 export const getSalonBySlug = (slug) => API.get(`api/salons/s/${slug}`);
+
+/** Add a new product to salon */
+export const addProduct = (salonId, productData) =>
+  API.post(`/api/salons/${salonId}/products`, productData);
+
+/** Update an existing product */
+export const updateProduct = (salonId, productId, productData) =>
+  API.put(`/api/salons/${salonId}/products/${productId}`, productData);
+
+/** Delete a product */
+export const deleteProduct = (salonId, productId) =>
+  API.delete(`/api/salons/${salonId}/products/${productId}`);
+
+/** Get all products of a salon (Public) - Optional but useful */
+export const getSalonProducts = (salonId) =>
+  API.get(`/api/salons/${salonId}/products`);

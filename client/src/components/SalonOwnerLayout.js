@@ -16,7 +16,9 @@ import {
   FaSignOutAlt,
   FaCreditCard,
   FaVideo,
-  FaPlayCircle
+  FaPlayCircle,
+  FaProductHunt,
+  FaAddressBook
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -86,11 +88,15 @@ const SalonOwnerLayout = ({ children, activePlan }) => {
           </button>
         </div>
 
+
+
         <nav className="flex-1 space-y-1 overflow-y-auto scrollbar-hide">
           <SidebarLink to="/salon-owner/dashboard" icon={FaTachometerAlt}>{t("ownerSidebar.dashboard")}</SidebarLink>
           <SidebarLink to="/salon-owner/appointments" icon={FaCalendarAlt}>{t("ownerSidebar.appointments")}</SidebarLink>
           <SidebarLink to="/salon-owner/profile" icon={FaStore}>{t("ownerSidebar.profile")}</SidebarLink>
           <SidebarLink to="/salon-owner/services" icon={FaConciergeBell}>{t("ownerSidebar.services")}</SidebarLink>
+          {/* <SidebarLink to="/salon-owner/add-products" icon={FaAddressBook}>{t("ownerSidebar.add-products")}</SidebarLink> */}
+          <SidebarLink to="/salon-owner/products" icon={FaProductHunt}>{t("products")}</SidebarLink>
           <SidebarLink to="/salon-owner/billing" icon={FaCreditCard}>{t("ownerSidebar.billing")}</SidebarLink>
           <SidebarLink to="/salon-owner/messages" icon={FaCommentDots}>{t("ownerSidebar.messages")}</SidebarLink>
           <SidebarLink to="/salon-owner/reviews" icon={FaStar}>{t("ownerSidebar.reviews")}</SidebarLink>

@@ -29,6 +29,9 @@ export const useSalon = (id) =>
 export const useSubscriptionPlans = () =>
   useSWR("/api/subscription-types", fetcher);
 
+export const useMyConversations = () => 
+  useSWR("/api/messages/mysalon/conversations", fetcher);
+
 export const useSubscriptionPlan = (id) =>
   useSWR(id ? `/api/subscription-types/${id}` : null, fetcher);
 
@@ -40,6 +43,9 @@ export const useSalonAnalytics = () => useSWR("/api/analytics", fetcher);
 export const useMessages = () => useSWR("/api/messages", fetcher);
 
 export const useMySalon = () => useSWR("/api/salons/mysalon", fetcher);
+
+export const useSalonBySlug = (slug) =>
+  useSWR(slug ? `/api/salons/s/${slug}` : null, fetcher);
 
 export const useSalonAppointments = (salonId) =>
   useSWR(

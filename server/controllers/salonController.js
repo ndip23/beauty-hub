@@ -488,6 +488,7 @@ const createSalon = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("This user already has a salon profile");
   }
+  console.log(existingSalon)
 
   const salon = await Salon.create({
     owner: targetOwnerId,
@@ -789,26 +790,29 @@ const deleteSalonService = asyncHandler(async (req, res) => {
 //   const salon = await Salon.findOne({ owner: req.user._id });
 //   res.status(200).json(salon || null);
 // });
-
 const getMySalon = asyncHandler(async (req, res) => {
   const salon = await Salon.findOne({ owner: req.user._id })
-    .select("name slug city address photos averageRating isVerified currency services description workingHours contactNumber email socialLinks createdAt")
+    .select(
+      "name slug city address photos averageRating isVerified currency services description products openingHours createdAt"  // ← ADD "products"
+    )
     .populate({
       path: "reviews",
       select: "rating comment createdAt",
-      populate: {
-        path: "user",
-        select: "name avatar"
-      },
+      populate: { path: "user", select: "name avatar" },
       options: { sort: { createdAt: -1 } }
     })
     .lean();
 
-  salon.minPrice = salon?.services?.length > 0 
+  if (!salon) {
+    return res.status(404).json({ message: "Salon not found" });
+  }
+
+  // Calculate minPrice for services (if needed)
+  salon.minPrice = salon.services?.length > 0 
     ? Math.min(...salon.services.map(s => s.price || 0)) 
     : 2500;
 
-  res.status(200).json(salon || null);
+  res.status(200).json(salon);
 });
 
 const getSalonBySlug = asyncHandler(async (req, res) => {
@@ -863,6 +867,386 @@ console.log(salons)
 
 
 
+
+
+
+////////////////-----------------PRODUCTS-----------------//////////////////////////
+
+
+
+/**
+ * @swagger
+ * /api/salons/{id}/products:
+ *   post:
+ *     summary: Add a new product to salon (Owner only)
+ *     tags: [Salons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, price]
+ *             properties:
+ *               name: { type: string, example: "Argan Hair Oil 100ml" }
+ *               description: { type: string }
+ *               price: { type: number, example: 12500 }
+ *               currency: { type: string, example: "XAF" }
+ *               stock: { type: number, example: 50 }
+ *               sku: { type: string, example: "ARGAN-OIL-001" }
+ *               category: { type: string, enum: ["haircare", "skincare", "tools", "makeup", "accessories", "other"] }
+ *               photos: { type: array, items: { type: string } }
+ *               isAvailable: { type: boolean, default: true }
+ *               featured: { type: boolean, default: false }
+ *     responses:
+ *       201: { description: Product added successfully }
+ */
+const addSalonProduct = asyncHandler(async (req, res) => {
+  const {
+    name,
+    description,
+    price,
+    currency,
+    stock,
+    sku,
+    category,
+    photos,
+    isAvailable,
+    featured
+  } = req.body;
+
+  if (!name || !price) {
+    return res.status(400).json({
+      message: "Name and price are required fields",
+    });
+  }
+
+  const salon = await Salon.findById(req.params.id);
+
+  if (!salon) {
+    return res.status(404).json({ message: "Salon not found" });
+  }
+
+  // Authorization check
+  if (salon.owner.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
+  const product = {
+    name,
+    description,
+    price,
+    currency: currency || salon.currency || "XAF",
+    stock: stock || 0,
+    sku,
+    category: category || "other",
+    photos: photos || [],
+    isAvailable: isAvailable !== undefined ? isAvailable : true,
+    featured: featured || false,
+  };
+
+  await Salon.findByIdAndUpdate(req.params.id, {
+    $push: { products: product },   // Use $push instead of $addToSet for products
+  });
+
+  res.status(201).json({
+    message: "Product added successfully",
+    product
+  });
+});
+
+/**
+ * @swagger
+ * /api/salons/{id}/products/{product_id}:
+ *   put:
+ *     summary: Update a product (Owner only)
+ *     tags: [Salons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: product_id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               description: { type: string }
+ *               price: { type: number }
+ *               stock: { type: number }
+ *               sku: { type: string }
+ *               category: { type: string }
+ *               photos: { type: array, items: { type: string } }
+ *               isAvailable: { type: boolean }
+ *               featured: { type: boolean }
+ *     responses:
+ *       200: { description: Product updated successfully }
+ */
+const updateSalonProduct = asyncHandler(async (req, res) => {
+  const salon = await Salon.findById(req.params.id);
+
+  if (!salon) {
+    res.status(404);
+    throw new Error("Salon not found");
+  }
+
+  if (salon.owner.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
+  const product = salon.products.id(req.params.product_id);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  // Update fields
+  product.name = req.body.name || product.name;
+  product.description = req.body.description || product.description;
+  product.price = req.body.price || product.price;
+  product.currency = req.body.currency || product.currency;
+  product.stock = req.body.stock !== undefined ? req.body.stock : product.stock;
+  product.sku = req.body.sku || product.sku;
+  product.category = req.body.category || product.category;
+  product.photos = req.body.photos || product.photos;
+  product.isAvailable = req.body.isAvailable !== undefined ? req.body.isAvailable : product.isAvailable;
+  product.featured = req.body.featured !== undefined ? req.body.featured : product.featured;
+
+  await salon.save();
+
+  res.json({
+    message: "Product updated successfully",
+    product
+  });
+});
+
+/**
+ * @swagger
+ * /api/salons/{id}/products/{product_id}:
+ *   delete:
+ *     summary: Delete a product (Owner only)
+ *     tags: [Salons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: product_id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Product deleted successfully }
+ */
+const deleteSalonProduct = asyncHandler(async (req, res) => {
+  const salon = await Salon.findById(req.params.id);
+
+  if (!salon) {
+    res.status(404);
+    throw new Error("Salon not found");
+  }
+
+  if (salon.owner.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
+  const product = salon.products.id(req.params.product_id);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  await product.deleteOne();
+  await salon.save();
+
+  res.json({ message: "Product deleted successfully" });
+});
+
+
+
+
+/**
+ * @swagger
+ * /api/salons/{id}/products:
+ *   get:
+ *     summary: Get all products for a specific salon (Public)
+ *     tags: [Salons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: query
+ *         name: featured
+ *         schema: { type: boolean }
+ *         description: Filter only featured products
+ *       - in: query
+ *         name: category
+ *         schema: { type: string }
+ *         description: Filter by category (haircare, skincare, etc.)
+ *       - in: query
+ *         name: available
+ *         schema: { type: boolean }
+ *         description: Filter only available products
+ *     responses:
+ *       200:
+ *         description: List of salon products
+ */
+const getSalonProducts = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { featured, category, available } = req.query;
+
+  const salon = await Salon.findById(id)
+    .select("name slug currency products")
+    .lean();
+
+  if (!salon) {
+    res.status(404);
+    throw new Error("Salon not found");
+  }
+
+  let products = salon.products || [];
+
+  // Apply filters
+  if (featured === "true") {
+    products = products.filter(p => p.featured === true);
+  }
+
+  if (category) {
+    products = products.filter(p => 
+      p.category && p.category.toLowerCase() === category.toLowerCase()
+    );
+  }
+
+  if (available === "true") {
+    products = products.filter(p => p.isAvailable !== false);
+  }
+
+  // Optional: Sort by featured first, then name
+  products.sort((a, b) => {
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  res.json({
+    success: true,
+    salon: {
+      _id: salon._id,
+      name: salon.name,
+      slug: salon.slug,
+      currency: salon.currency,
+    },
+    products,
+    totalProducts: products.length,
+  });
+});
+
+
+
+
+const getSalonProductsBySlug = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const { featured, category, available } = req.query;
+
+  const salon = await Salon.findOne({ slug })
+    .select("name slug currency products")
+    .lean();
+
+  if (!salon) {
+    res.status(404);
+    throw new Error("Salon not found");
+  }
+
+  // ... same filtering logic as above
+  let products = salon.products || [];
+
+  if (featured === "true") products = products.filter(p => p.featured);
+  if (category) products = products.filter(p => p.category?.toLowerCase() === category.toLowerCase());
+  if (available === "true") products = products.filter(p => p.isAvailable !== false);
+
+  products.sort((a, b) => {
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  res.json({
+    success: true,
+    salon: {
+      _id: salon._id,
+      name: salon.name,
+      slug: salon.slug,
+      currency: salon.currency,
+    },
+    products,
+    totalProducts: products.length,
+  });
+});
+
+
+
+/**
+ * @desc    Get all products for the logged-in salon owner
+ * @route   GET /api/salons/mysalon/products
+ * @access  Private (Owner only)
+ */
+const getMySalonProducts = asyncHandler(async (req, res) => {
+  const salon = await Salon.findOne({ owner: req.user._id })
+    .select("name slug currency products")   // Only needed fields
+    .lean();
+
+  if (!salon) {
+    return res.status(404).json({
+      success: false,
+      message: "Salon profile not found. Please create your salon first."
+    });
+  }
+
+  const products = salon.products || [];
+
+  // Sort: Featured first, then by name
+  products.sort((a, b) => {
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  res.json({
+    success: true,
+    salon: {
+      _id: salon._id,
+      name: salon.name,
+      slug: salon.slug,
+      currency: salon.currency,
+    },
+    products,
+    totalProducts: products.length,
+  });
+});
+
+
+
 module.exports = {
   getSalons,
   getSalonBySlug,
@@ -872,6 +1256,17 @@ module.exports = {
   addSalonService,
   updateSalonService,
   deleteSalonService,
+  getMySalon,
+  searchSalonsByService,
+
+
+  // New Product Controllers
+  addSalonProduct,
+  updateSalonProduct,
+  deleteSalonProduct,
+  getSalonProducts,           
+  getSalonProductsBySlug,
+getMySalonProducts,
   getMySalon,
   searchSalonsByService
   
