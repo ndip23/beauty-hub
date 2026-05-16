@@ -10,15 +10,13 @@ import Button from "../components/Button";
 
 const HomePage = () => {
   const { t } = useTranslation();
-  
-  // 1. Logic to detect user country via IP
+
   const [userCountry, setUserCountry] = useState("");
   const [detecting, setDetecting] = useState(true);
 
   useEffect(() => {
     const detectLocation = async () => {
       try {
-        // Using a free IP geolocation service
         const { data } = await axios.get("https://ipapi.co/json/");
         if (data.country_name) {
           setUserCountry(data.country_name);
@@ -32,16 +30,16 @@ const HomePage = () => {
     detectLocation();
   }, []);
 
-  // 2. We pass the detected country to your existing hook logic
+  // Featured salons: no country filter (show all verified). Country is banner/UX only.
   const {
     data: salonsData,
-    isLoading: loading,
+    isLoading,
     error,
-    mutate
-  } = useSalons(1, "", "", "", userCountry); // Added userCountry as the 5th parameter
+    mutate,
+  } = useSalons(1, "", "", "", "");
 
-  // Extract the salons array safely
   const salons = salonsData?.salons || [];
+  const showLoading = detecting || (isLoading && salons.length === 0);
 
   return (
     <div className="bg-white">
@@ -79,7 +77,7 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {loading ? (
+          {showLoading ? (
             <div className="text-center py-20">
               <FaSpinner className="text-5xl text-primary-purple mx-auto animate-spin" />
               <p className="mt-4 font-semibold text-text-muted">
@@ -114,7 +112,7 @@ const HomePage = () => {
             </div>
           )}
 
-          {!loading && salons.length > 0 && (
+          {!showLoading && salons.length > 0 && (
             <div className="mt-16 text-center">
               <Link to="/salons">
                 <Button variant="gradient" className="px-8 py-3 flex flex-row items-center justify-center mx-auto">

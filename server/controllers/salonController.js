@@ -153,15 +153,36 @@ const getSalons = asyncHandler(async (req, res) => {
   // 1. GLOBAL FILTER
   const baseQuery = { isVerified: true };
 
-  // 🌍 LOCALIZATION
+  // 🌍 LOCALIZATION (international prefix + common local formats)
   if (country) {
     const countryToPrefix = {
-      "Uganda": "256", "Cameroon": "237", "Nigeria": "234",
-      "Kenya": "254", "Tanzania": "255", "Zambia": "260"
+      Uganda: "256",
+      Cameroon: "237",
+      Nigeria: "234",
+      Kenya: "254",
+      Tanzania: "255",
+      Zambia: "260",
+    };
+    const localPhonePatterns = {
+      Cameroon: "^[\\s+()\\-]*6[0-9]",
+      Nigeria: "^[\\s+()\\-]*0?[789][0-9]",
+      Kenya: "^[\\s+()\\-]*0?7[0-9]",
+      Uganda: "^[\\s+()\\-]*0?7[0-9]",
+      Tanzania: "^[\\s+()\\-]*0?7[0-9]",
+      Zambia: "^[\\s+()\\-]*0?9[0-9]",
     };
     const prefix = countryToPrefix[country];
+    const phoneMatchers = [];
     if (prefix) {
-      baseQuery.phone = { $regex: `^(\\+)?${prefix}` };
+      phoneMatchers.push({ phone: { $regex: `^(\\+)?${prefix}` } });
+    }
+    if (localPhonePatterns[country]) {
+      phoneMatchers.push({ phone: { $regex: localPhonePatterns[country] } });
+    }
+    if (phoneMatchers.length === 1) {
+      baseQuery.phone = phoneMatchers[0].phone;
+    } else if (phoneMatchers.length > 1) {
+      baseQuery.$or = phoneMatchers;
     }
   }
 

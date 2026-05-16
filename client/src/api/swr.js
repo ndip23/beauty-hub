@@ -20,7 +20,7 @@ export const useSalons = (pageNumber = 1, keyword = "", address = "", city = "",
 
   const url = `/api/salons?${queryParams.toString()}`;
 
-  return useSWR(url, fetcher);
+  return useSWR(url, fetcher, { keepPreviousData: true });
 };
 
 export const useSalon = (id) =>
