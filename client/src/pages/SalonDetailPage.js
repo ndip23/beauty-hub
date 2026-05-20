@@ -5,7 +5,6 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { createAppointment, addReview, getSalonBySlug } from "../api"; 
 import { useAuth } from "../context/AuthContext";
@@ -23,9 +22,9 @@ const SalonDetailPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [activeImages, setActiveImages] = useState([]);
+  const [setLightboxOpen] = useState(false);
+  const [setPhotoIndex] = useState(0);
+  const [setActiveImages] = useState([]);
 
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "", guestName: "" });
   const [submittingReview, setSubmittingReview] = useState(false);

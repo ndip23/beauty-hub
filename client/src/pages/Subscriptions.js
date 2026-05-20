@@ -13,7 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import { getMyTransactions } from "../api"; // 🚀 Imported API helper
 
 const Subscriptions = () => {
-  const { t } = useTranslation();
+  useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
 

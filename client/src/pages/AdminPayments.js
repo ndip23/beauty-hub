@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllTransactionsForAdmin } from "../api";
-import { FaHistory, FaSpinner, FaCoins } from "react-icons/fa";
+import {  FaSpinner, FaCoins } from "react-icons/fa";
 
 const AdminPayments = () => {
   const [logs, setLogs] = useState([]);
