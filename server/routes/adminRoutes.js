@@ -9,7 +9,8 @@ const {
   getSystemOverview,
   manualActivateSubscription,
   restrictUserAccess,
-  resetUserPassword
+  resetUserPassword,
+  getAllSystemTransactions
 
 } = require("../controllers/adminController");
 
@@ -21,5 +22,6 @@ router.get("/overview", protect, admin, getSystemOverview);
 router.post("/manual-activate", protect, admin, manualActivateSubscription);
 router.put("/restrict-access/:userId", protect, admin, restrictUserAccess);
 router.put("/reset-password", protect, admin, resetUserPassword);
+router.get("/transactions", protect, admin, getAllSystemTransactions);
 
 module.exports = router;

@@ -75,6 +75,10 @@ const userSchema = new mongoose.Schema(
       enum: ["customer", "salon_owner", "admin"], // The role must be one of these values
       default: "customer",
     },
+     walletBalance: {
+    type: Number,
+    default: 0, // Starts at $0.00
+  },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields

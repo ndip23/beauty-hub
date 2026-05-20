@@ -267,7 +267,7 @@
 // export default SalonsPage
 
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios"; // Added for IP detection
+import axios from "axios"; 
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { 
@@ -286,7 +286,6 @@ const SalonsPage = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 1. ADDED: State for auto-detected country
   const [userCountry, setUserCountry] = useState("");
   const [isDetecting, setIsDetecting] = useState(true);
 
@@ -305,19 +304,20 @@ const SalonsPage = () => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showLocationNotice, setShowLocationNotice] = useState(false);
 
-  // 2. UPDATED: Pass userCountry to the hook (5th parameter)
+  // 🚀 FIXED: SWR only fetches when 'userCountry' has been detected
+  // This prevents the page from accidentally loading a global mixture first
   const { data: salonsData, isLoading: loading, error, mutate } = useSalons(
     pageNumber,
     keyword,
     "",           
     "",           
-    userCountry, // 🚀 Added localization parameter
+    userCountry, 
     lat,
     lng,
     radius
   );
 
-  // 3. ADDED: Detect Country on mount
+  // Detect Country on mount
   useEffect(() => {
     const detectLocation = async () => {
       try {
@@ -327,6 +327,7 @@ const SalonsPage = () => {
         }
       } catch (err) {
         console.error("SalonsPage: Country detection failed");
+        setUserCountry("International"); // Fallback
       } finally {
         setIsDetecting(false);
       }
@@ -395,12 +396,15 @@ const SalonsPage = () => {
 
   useEffect(() => {
     setPageNumber(1);
-  }, [keyword, lat, lng, userCountry]); // Reset on country change too
+  }, [keyword, lat, lng, userCountry]);
+
+  // Show loading spinner if still detecting IP OR if the SWR is fetching
+  const showPageLoading = isDetecting || (loading && salons.length === 0);
 
   return (
     <div className="bg-white min-h-screen pb-20">
-      {/* 4. ADDED: UI indicator for localized results */}
-      {!isDetecting && userCountry && (
+      {/* UI indicator for localized results */}
+      {!isDetecting && userCountry && userCountry !== "International" && (
         <div className="bg-emerald-600 text-white py-2 text-center text-[10px] font-black uppercase tracking-widest">
            📍 {t("salons.localizedNotice") || "Showing results for"} {userCountry}
         </div>
@@ -409,10 +413,10 @@ const SalonsPage = () => {
       <section className="bg-[#1D1D1F] text-white py-16 px-6">
         <div className="container mx-auto">
           <h1 className="text-5xl font-black tracking-tighter mb-4">{t("salons.header")}</h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-lg font-medium">
             {lat && lng 
               ? "Showing salons near your current location" 
-              : t("salons.discover", { count: salonsData?.totalSalons || 0 })}
+              : `Discover verified beauty salons in ${userCountry || 'your area'}`}
           </p>
         </div>
       </section>
@@ -475,7 +479,7 @@ const SalonsPage = () => {
       )}
 
       <div className="container mx-auto px-6 py-12">
-        {loading || isDetecting ? (
+        {showPageLoading ? (
           <div className="text-center py-20">
             <FaSpinner className="animate-spin text-5xl text-primary-purple mx-auto" />
             <p className="mt-4 text-gray-400 font-bold uppercase text-xs tracking-widest">{t("salons.detecting") || "Localizing Directory..."}</p>
@@ -489,8 +493,8 @@ const SalonsPage = () => {
             </button>
           </div>
         ) : salons.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-xl text-gray-500 font-bold italic">No salons found in {userCountry || "this area"}.</p>
+          <div className="text-center py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
+            <p className="text-xl text-gray-500 font-bold italic">No salons found in {userCountry || "this area"} yet.</p>
           </div>
         ) : (
           <>

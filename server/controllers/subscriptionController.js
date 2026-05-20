@@ -3,22 +3,27 @@ const Subscription = require("../models/subscriptionModel");
 const SubscriptionType = require("../models/subscriptionTypeModel");
 const Payment = require("../models/paymentModel");
 const mongoose = require("mongoose");
-const { createPaymentLink, login, getFiatRate } = require("../services/swychrService");
+const { createPaymentLink, login, getFiatRate, getPaymentStatus } = require("../services/swychrService");
 const Coupon = require("../models/couponModel");
 const convertCurrency = require("../utils/currencyConverter");
 const axios = require("axios");
 const User = require("../models/userModel");
+const Transaction = require("../models/transactionModel");
+const STATUS_PENDING = 0;
+const STATUS_SUCCESS = 1;
+const STATUS_FAILED = 2;
+
 /**
- * @desc    Initiate Subscription with Dynamic Currency Conversion
+ * @desc    Initiate Wallet Top-Up with Dynamic Currency Conversion (Dashboard)
  * @route   POST /api/subscriptions/subscribe
  * @access  Private
  */
 const subscribe = asyncHandler(async (req, res) => {
-  const { planId, countryCode, currency } = req.body;
+  const { planId, countryCode, currency, amountOverride } = req.body; // 🚀 Added amountOverride support
   const user = req.user;
 
-  console.log("--- INITIATING DYNAMIC SUBSCRIBE ---");
-  console.log("Input:", { planId, countryCode, currency });
+  console.log("--- INITIATING DYNAMIC WALLET TOP-UP ---");
+  console.log("Input:", { planId, countryCode, currency, amountOverride });
 
   if (!planId || !countryCode || !currency) {
     return res.status(400).json({ message: "Missing required fields: planId, countryCode, or currency" });
@@ -29,58 +34,51 @@ const subscribe = asyncHandler(async (req, res) => {
 
   try {
     // 1. Fetch Plan
-   const plan = await SubscriptionType.findOne({ slug: planId }).session(session);
+    const plan = await SubscriptionType.findOne({ slug: planId }).session(session);
     if (!plan) throw new Error("Subscription plan not found");
+
+    // Determine the base USD deposit amount (Uses custom amount if top-up, otherwise plan default)
+    const baseUsdAmount = Number(amountOverride) || plan.amount;
 
     // 2. Login to Swychr
     const token = await login();
 
-    // 3. Get the exact Rate again to ensure precision
+    // 3. Get exact Rate
     const rateValue = await getFiatRate(token, countryCode, 1);
-    const finalAmount = Math.ceil(plan.amount * rateValue);
+    const finalAmount = Math.ceil(baseUsdAmount * rateValue);
 
-    console.log(`Final Calculation: $${plan.amount} * ${rateValue} = ${finalAmount} ${currency}`);
+    console.log(`Final Calculation: $${baseUsdAmount} * ${rateValue} = ${finalAmount} ${currency}`);
 
-    // 4. Create Subscription
-    const [createdSubscription] = await Subscription.create(
-      [{
-        user: user._id,
-        plan: plan._id,
-        durationMonths: plan.durationMonths,
-      }],
-      { session }
-    );
-
-    // 5. Create Payment record
+    // 4. Create Payment record for Wallet top-up (We don't create Subscription document anymore)
     const [createdPayment] = await Payment.create(
       [{
-        entity: "Subscription",
-        entityId: createdSubscription._id,
+        entity: "Wallet_TopUp",
+        entityId: user._id,
         userId: user._id,
         amount: finalAmount,
         currency: currency,
+        amountUsd: baseUsdAmount // Save the target USD to credit on completion
       }],
       { session }
     );
 
-    // 6. Prepare Swychr Payload
+    // 5. Prepare Swychr Payload
     const payload = {
       country_code: countryCode,
       name: user?.name || "Customer",
-      email: user?.email,
+      email: user?.email || "customer@beautyheaven.site",
       mobile: user?.phone || "0000000000",
       amount: finalAmount,
       currency: currency,
       transaction_id: createdPayment._id.toString(),
-      description: `BeautyHub - ${plan.planName} Plan`,
+      description: `BeautyHeaven - $${baseUsdAmount} Wallet Top-up`,
       pass_digital_charge: false,
     };
 
-    // 7. Call Swychr
+    // 6. Call Swychr
     const swychrResponse = await createPaymentLink(token, payload);
     console.log("Swychr Response:", swychrResponse);
 
-    // Check success (Swychr uses status: 200 or status: "success")
     const isSuccess = swychrResponse.status === 200 || swychrResponse.status === "success" || swychrResponse.success;
 
     if (!isSuccess) {
@@ -89,11 +87,9 @@ const subscribe = asyncHandler(async (req, res) => {
 
     const paymentUrl = swychrResponse.data?.payment_link || swychrResponse.payment_link;
 
-    // 8. Update records with URL
+    // 7. Update records with URL
     await Payment.findByIdAndUpdate(createdPayment._id, { $set: { paymentUrl } }).session(session);
-    await Subscription.findByIdAndUpdate(createdSubscription._id, { $set: { paymentRef: createdPayment._id } }).session(session);
 
-    // 9. COMMIT
     await session.commitTransaction();
     session.endSession();
 
@@ -101,15 +97,14 @@ const subscribe = asyncHandler(async (req, res) => {
       success: true,
       data: {
         paymentUrl,
-        paymentReference: createdPayment._id,
-        subscriptionId: createdSubscription._id
+        paymentReference: createdPayment._id
       }
     });
 
   } catch (error) {
-    console.error("CRITICAL SUBSCRIBE ERROR:", error.message);
     await session.abortTransaction();
     session.endSession();
+    console.error("CRITICAL SUBSCRIBE ERROR:", error.message);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -315,7 +310,7 @@ const getConvertedPrice = asyncHandler(async (req, res) => {
 });
 // @desc    Public Subscription by Phone (No Token Required)
 const publicSubscribe = asyncHandler(async (req, res) => {
-  const { planId, countryCode, currency, phone } = req.body;
+  const { planId, countryCode, currency, phone, amountOverride } = req.body;
 
   if (!planId || !countryCode || !currency || !phone) {
     return res.status(400).json({ message: "Missing required fields" });
@@ -323,7 +318,6 @@ const publicSubscribe = asyncHandler(async (req, res) => {
 
   const cleanPhone = phone.replace("+", "").trim();
 
-  // FIX: Rename variable to foundUser to ensure it is defined before usage
   const foundUser = await User.findOne({ 
     $or: [{ phone: cleanPhone }, { phone: `+${cleanPhone}` }] 
   });
@@ -333,9 +327,6 @@ const publicSubscribe = asyncHandler(async (req, res) => {
     throw new Error("No account found with this phone number. Please register first.");
   }
 
-  // Set the promo price here as well
-  const promoUsdAmount = 5;
-
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -343,22 +334,22 @@ const publicSubscribe = asyncHandler(async (req, res) => {
     const plan = await SubscriptionType.findOne({ slug: planId }).session(session);
     if (!plan) throw new Error("Plan not found");
 
+    // Use $5 promo price or custom override if passed
+    const promoUsdAmount = Number(amountOverride) || 5;
+
     const token = await login();
     const rateValue = await getFiatRate(token, countryCode, 1);
     const finalAmount = Math.ceil(promoUsdAmount * rateValue);
 
-    const [createdSubscription] = await Subscription.create(
-      [{ user: foundUser._id, plan: plan._id, durationMonths: 1 }],
-      { session }
-    );
-
+    // Create Payment Record targeting the foundUser's wallet
     const [createdPayment] = await Payment.create(
       [{ 
-        entity: "Subscription", 
-        entityId: createdSubscription._id, 
+        entity: "Wallet_TopUp", 
+        entityId: foundUser._id, 
         userId: foundUser._id, 
         amount: finalAmount, 
-        currency 
+        currency,
+        amountUsd: promoUsdAmount
       }],
       { session }
     );
@@ -371,7 +362,7 @@ const publicSubscribe = asyncHandler(async (req, res) => {
       amount: finalAmount,
       currency: currency,
       transaction_id: createdPayment._id.toString(),
-      description: `Promo Pay - ${plan.planName}`,
+      description: `BeautyHeaven - $${promoUsdAmount} Promo Top-up`,
     };
 
     const swychrResponse = await createPaymentLink(token, payload);
@@ -388,6 +379,7 @@ const publicSubscribe = asyncHandler(async (req, res) => {
     session.endSession();
   }
 });
+
 module.exports = {
   subscribe,
   getMySubscriptionHistory,

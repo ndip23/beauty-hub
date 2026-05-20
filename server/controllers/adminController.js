@@ -172,6 +172,31 @@ const resetUserPassword = asyncHandler(async (req, res) => {
     message: `Password updated for ${user.name}` 
   });
 });
+// @desc    Get All Financial Transactions for Admin
+// @route   GET /api/admin/transactions
+// @access  Private (Admin Only)
+const getAllSystemTransactions = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
+  const count = await Transaction.countDocuments({});
+  // We find all transactions, newest first, and populate the owner's name/email
+  const transactions = await Transaction.find({})
+    .populate("user", "name email phone")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  res.json({
+    success: true,
+    data: transactions,
+    page,
+    pages: Math.ceil(count / limit),
+    total: count
+  });
+});
+
 module.exports = {
   getSystemStats,
   getAllUsers,
@@ -180,5 +205,6 @@ module.exports = {
   getSystemOverview,
   manualActivateSubscription,
   restrictUserAccess,
-  resetUserPassword
+  resetUserPassword,
+  getAllSystemTransactions
 };

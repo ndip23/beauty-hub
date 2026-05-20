@@ -61,7 +61,7 @@ import React, { useState } from "react";
 import { FaCheckCircle, FaStar, FaMapMarkerAlt, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Button from "./Button";
-import InquiryModal from "./InquiryModal";   // ← New Modal
+import InquiryModal from "./InquiryModal";   
 
 const SalonCard = ({ salon }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,6 +71,11 @@ const SalonCard = ({ salon }) => {
   const rating = salon.averageRating || 0;
   const displayPrice = salon.minPrice || 2500;
   const displayImage = salon.photos?.[0] || `https://placehold.co/400x300/a855f7/ffffff?text=${encodeURIComponent(salon.name.slice(0, 2).toUpperCase())}`;
+
+  // 🚀 WALLET PROTECTION CHECK (Per Booking System)
+  // Owner must have >= $0.50, or be verified by Admin to show active action buttons
+  const MIN_REQUIRED_FEE = 0.50;
+  const canBook = salon.owner && (salon.owner.walletBalance >= MIN_REQUIRED_FEE || salon.owner.isVerified);
 
   return (
     <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-500 flex flex-col h-full group">
@@ -110,20 +115,29 @@ const SalonCard = ({ salon }) => {
           </div>
 
           <div className="flex gap-2">
-            {/* Book Button */}
-            <Link to={`/salon/${salon.slug}`}>
-              <Button variant="gradient" className="!py-2 !px-6 rounded-full font-bold shadow-lg">
-                Book
+            {/* 🚀 DYNAMIC BOOK BUTTON */}
+            {canBook ? (
+              <Link to={`/salon/${salon.slug}`}>
+                <Button variant="gradient" className="!py-2 !px-6 rounded-full font-bold shadow-lg">
+                  Book
+                </Button>
+              </Link>
+            ) : (
+              <Button variant="disabled" disabled={true} className="!py-2 !px-6 rounded-full font-bold">
+                Unavailable
               </Button>
-            </Link>
+            )}
 
-            {/* Message Button */}
+            {/* 🚀 DYNAMIC MESSAGE BUTTON */}
             <Button 
-              onClick={() => setIsModalOpen(true)}
-              variant="outline"
-              className="!py-2 !px-5 rounded-full font-medium flex items-center gap-2 hover:bg-gray-50"
+              onClick={canBook ? () => setIsModalOpen(true) : null}
+              variant={canBook ? "outline" : "disabled"}
+              disabled={!canBook}
+              className={`!py-2 !px-5 rounded-full font-medium flex items-center gap-2 ${
+                canBook ? "hover:bg-gray-50" : ""
+              }`}
             >
-              <FaEnvelope /> Message
+              <FaEnvelope /> {canBook ? "Message" : "Locked"}
             </Button>
           </div>
         </div>

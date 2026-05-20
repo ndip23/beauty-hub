@@ -175,84 +175,64 @@ const checkPaymentStatus = asyncHandler(async (req, res) => {
   const { id: transactionId } = req.params;
 
   const payment = await Payment.findById(transactionId);
-
   if (!payment) {
     return res.status(200).json({ message: "Transaction not found - ignored" });
+  }
+
+  if (payment.status === "Completed") {
+    return res.status(200).json({ data: { status: "Completed" } });
   }
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // creating a transaction, so that we can roll back if there is an error at any step
-
     const token = await login();
     const paymentData = await getPaymentStatus(token, transactionId);
-
-    const paymentStatus = paymentData.data.data.attributes.status;
+    const paymentStatus = paymentData.data?.data?.attributes?.status;
 
     let statusResponse = "Created";
 
-    switch (paymentStatus) {
-      case STATUS_PENDING:
-        break;
-      case STATUS_SUCCESS:
-        // 1. fetch the entity
-        switch (payment.entity) {
-          case "Subscription":
-            const subscription = await Subscription.findById(payment.entityId);
+    if (paymentStatus === STATUS_SUCCESS) {
+      const user = await User.findById(payment.userId).session(session);
+      if (!user) throw new Error("User not found");
 
-            if (!subscription) {
-              await session.abortTransaction();
-              session.endSession();
-              return res.status(404).json({
-                message: `Subscription with id ${payment.entityId} not found`,
-              });
-            }
+      // 🚀 Add real USD money received on Swychr straight into the virtual wallet
+      const topUpAmount = Number(payment.amountUsd) || 5;
+      user.walletBalance = (user.walletBalance || 0) + topUpAmount;
+      await user.save({ session });
 
-            if (subscription.status !== "Created") {
-              await session.abortTransaction();
-              session.endSession();
-              return res.status(400).json({
-                message: `Subscription is in an invalid status ${subscription.status}`,
-              });
-            }
+      // 🚀 Record the deposit in the transactions list
+      await Transaction.create(
+        [{
+          user: user._id,
+          type: "DEPOSIT",
+          amount: topUpAmount,
+          balanceAfter: user.walletBalance,
+          description: `Wallet Top-up via Swychr`,
+          paymentId: payment._id
+        }],
+        { session }
+      );
 
-            await Payment.findByIdAndUpdate(payment.id, {
-              $set: {
-                status: "Completed",
-              },
-            });
-
-            await Subscription.activate(subscription.id);
-            statusResponse = "Completed";
-            break;
-          default:
-            return res.status(400).json({
-              message: `Unsupported payment entity ${payment.entity}`,
-            });
-        }
-        break;
-      default:
-        await Payment.findByIdAndUpdate(payment.id, {
-          $set: {
-            status: "Failed",
-          },
-        });
-        statusResponse = "Failed";
+      payment.status = "Completed";
+      await payment.save({ session });
+      statusResponse = "Completed";
+    } else if (paymentStatus === STATUS_FAILED) {
+      payment.status = "Failed";
+      await payment.save({ session });
+      statusResponse = "Failed";
     }
 
-    return res.status(200).json({
-      data: {
-        status: statusResponse,
-      },
-    });
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({ data: { status: statusResponse } });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return res
-      .status(400)
-      .json({ message: `Error validating webhook: ${error}` });
+    console.error("WEBHOOK ERROR:", error.message);
+    return res.status(400).json({ message: `Error validating webhook: ${error.message}` });
   }
 });
 

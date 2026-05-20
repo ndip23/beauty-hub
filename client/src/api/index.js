@@ -146,3 +146,7 @@ export const deleteProduct = (salonId, productId) =>
 /** Get all products of a salon (Public) - Optional but useful */
 export const getSalonProducts = (salonId) =>
   API.get(`/api/salons/${salonId}/products`);
+export const getMyTransactions = (page = 1) => 
+  API.get(`/api/transactions/my-transactions?page=${page}`);
+export const getAllTransactionsForAdmin = (page = 1) => 
+  API.get(`/api/admin/transactions?page=${page}`);

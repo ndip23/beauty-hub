@@ -93,47 +93,6 @@
 //   return app(req, res);
 // };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // server/index.js
 const express = require("express");
 const dotenv = require("dotenv");
@@ -152,6 +111,7 @@ const messageRoutes = require("./routes/messageRoutes");
 const paymentRoutes = require("./routes/paymentRoutes.js");
 const adminRoutes = require("./routes/adminRoutes");
 const videoRoutes = require("./routes/videoRoute.js");
+const transactionRoutes = require("./routes/transactionRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 // Swagger
@@ -228,6 +188,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/videos", videoRoutes);
+app.use("/api/transactions", transactionRoutes);
 // Error Handling (must be last)
 app.use(notFound);
 app.use(errorHandler);

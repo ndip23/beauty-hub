@@ -15,8 +15,8 @@ import {
   getPaymentStatus,
   redeemCouponCode,
   subscribe,
-  getPlanPrice, // Used for fetching the converted price
-  getPlanBySlug // Used for fetching the plan details
+  getPlanPrice, 
+  getPlanBySlug 
 } from "../api";
 import Button from "../components/Button";
 
@@ -49,8 +49,10 @@ const PaymentPage = () => {
   const navigate = useNavigate();
 
   const searchParams = new URLSearchParams(location.search);
-  // Renamed to planSlug to reflect its content (e.g., "basic-plan")
   const planSlug = searchParams.get("plan"); 
+
+  // 🚀 WALLET SYSTEM UPDATE: Get the custom top-up amount from navigation state
+  const customAmount = location.state?.customAmount;
 
   const [plan, setPlan] = useState(null);
   const [fetching, setFetching] = useState(true);
@@ -72,14 +74,14 @@ const PaymentPage = () => {
   // 1. Fetch Plan Details by SLUG
   useEffect(() => {
     const getPlanDetails = async () => {
-      if (!planSlug) { // Use planSlug here
+      if (!planSlug) { 
         setError("No plan selected");
         setFetching(false);
         return;
       }
       try {
         setFetching(true);
-        const { data } = await getPlanBySlug(planSlug); // Use getPlanBySlug
+        const { data } = await getPlanBySlug(planSlug); 
         setPlan(data?.data);
       } catch (err) {
         console.error("Error fetching plan:", err);
@@ -89,14 +91,13 @@ const PaymentPage = () => {
       }
     };
     getPlanDetails();
-  }, [planSlug, t]); // Added getPlanBySlug to dependencies
+  }, [planSlug, t]); 
 
   // 2. Fetch Rate dynamically from Backend
   useEffect(() => {
     const fetchPrice = async () => {
       if (!plan) return;
 
-      // If International (US), rate is always 1 USD
       if (selectedRegion.code === "US") {
         setExchangeRate(1);
         return;
@@ -104,7 +105,6 @@ const PaymentPage = () => {
 
       try {
         setFetchingRate(true);
-        // Call the new backend route using plan.slug and selectedRegion.code
         const response = await getPlanPrice(plan.slug, selectedRegion.code); 
         
         if (response.data && response.data.success) {
@@ -112,7 +112,6 @@ const PaymentPage = () => {
         }
       } catch (err) {
         console.error("Failed to fetch live rate, using fallback:", err);
-        // Fallbacks for common countries if API fails
         const fallbacks = { "NG": 1600, "CM": 615, "BF": 615, "KE": 130 };
         setExchangeRate(fallbacks[selectedRegion.code] || 615);
       } finally {
@@ -121,7 +120,7 @@ const PaymentPage = () => {
     };
 
     fetchPrice();
-  }, [selectedRegion, plan]); // Added getPlanPrice to dependencies
+  }, [selectedRegion, plan]); 
 
   // 3. Poll Status
   useEffect(() => {
@@ -144,27 +143,26 @@ const PaymentPage = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isPaymentInitiated, paymentId, paymentStatus]); // Added getPaymentStatus to dependencies
+  }, [isPaymentInitiated, paymentId, paymentStatus]); 
 
   // --- FACEBOOK PIXEL PURCHASE TRACKING ---
   useEffect(() => {
-    if (paymentStatus === "Completed" && plan) { // Ensure plan is loaded
+    if (paymentStatus === "Completed" && plan) { 
       ReactPixel.track('Purchase', {
-        value: plan.amount, // Use plan.amount directly
-        currency: plan.currency, // Use plan.currency directly
+        value: customAmount || plan.amount, // 🚀 Uses custom wallet amount if available
+        currency: plan.currency, 
         content_name: plan.planName
       });
     }
-  }, [paymentStatus, plan]);
+  }, [paymentStatus, plan, customAmount]);
 
   const handlePayment = async (e) => {
     e.preventDefault();
 
-    // --- FACEBOOK PIXEL INITIATE CHECKOUT TRACKING ---
-    if (plan) { // Ensure plan is loaded before tracking
+    if (plan) { 
       ReactPixel.track('InitiateCheckout', {
         content_name: plan.planName,
-        value: plan.amount,
+        value: customAmount || plan.amount, // 🚀 Uses custom wallet amount if available
         currency: plan.currency
       });
     }
@@ -179,10 +177,12 @@ const PaymentPage = () => {
         return;
       }
 
+      // 🚀 Send the custom top-up amount in the 'amountOverride' parameter
       const response = await subscribe({ 
-        planId: plan.slug, // Send the slug to the backend
+        planId: plan.slug, 
         countryCode: selectedRegion.code, 
-        currency: selectedRegion.currency 
+        currency: selectedRegion.currency,
+        amountOverride: customAmount || plan.amount 
       });
 
       if (response.data?.data?.paymentUrl) {
@@ -200,8 +200,9 @@ const PaymentPage = () => {
     }
   };
 
-  // Ensure plan is loaded before calculating localAmount
-  const localAmount = plan ? Math.ceil(plan.amount * exchangeRate) : 0;
+  // 🚀 MATH CALCULATION: Uses customAmount if it exists, otherwise falls back to plan.amount
+  const activeBaseAmount = customAmount || plan?.amount || 0;
+  const localAmount = Math.ceil(activeBaseAmount * exchangeRate);
 
   if (fetching) return <div className="flex justify-center items-center h-screen"><FaSpinner className="animate-spin text-4xl text-primary-purple" /></div>;
 
@@ -219,8 +220,13 @@ const PaymentPage = () => {
             <h1 className="text-3xl font-black mb-10 tracking-tight">{t("payment.orderSummary")}</h1>
             
             <div className="bg-[#F5F5F7] rounded-3xl p-6 mb-8">
-              <h2 className="text-xl font-bold text-primary-purple">{plan?.planName}</h2>
-              <p className="text-gray-500 mt-1">{plan?.description || ""}</p> {/* Added fallback */}
+              {/* If custom amount, label as Wallet Deposit */}
+              <h2 className="text-xl font-bold text-primary-purple">
+                {customAmount ? `Wallet Top-up: $${customAmount}` : plan?.planName}
+              </h2>
+              <p className="text-gray-500 mt-1">
+                {customAmount ? "Direct deposit to virtual wallet" : plan?.description}
+              </p> 
             </div>
 
             <div className="mb-10">
@@ -245,7 +251,7 @@ const PaymentPage = () => {
                   <FaSpinner className="animate-spin ml-auto" />
                 ) : (
                   <span className="text-4xl font-black text-primary-purple">
-                    {selectedRegion.currency} {localAmount}
+                    {selectedRegion.currency} {localAmount.toLocaleString()}
                   </span>
                 )}
               </div>
@@ -264,11 +270,11 @@ const PaymentPage = () => {
             <Button
               variant="gradient"
               onClick={handlePayment}
-              disabled={loading || fetchingRate || isPaymentInitiated || !plan} // Disable if plan is not loaded
+              disabled={loading || fetchingRate || isPaymentInitiated || !plan} 
               className="w-full !py-5 rounded-full text-xl shadow-lg flex items-center justify-center gap-3"
             >
               {(loading || redeemingCoupon) && <FaSpinner className="animate-spin" />}
-              {isPaymentInitiated ? "Awaiting Payment..." : `Pay Now - ${selectedRegion.currency} ${localAmount}`}
+              {isPaymentInitiated ? "Awaiting Payment..." : `Pay Now - ${selectedRegion.currency} ${localAmount.toLocaleString()}`}
             </Button>
           </div>
         )}
@@ -294,7 +300,7 @@ const PaymentPage = () => {
               <FaCheckCircle />
             </div>
             <h2 className="text-2xl font-black text-black">Payment Success!</h2>
-            <p className="text-gray-500 mt-2 mb-8 font-medium">Your subscription is now active.</p>
+            <p className="text-gray-500 mt-2 mb-8 font-medium">Your wallet balance has been credited.</p>
             <Button variant="gradient" onClick={() => navigate("/salon-owner/dashboard")} className="w-full !py-4 rounded-full">Go to Dashboard</Button>
           </div>
         </div>

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Appointment = require("../models/appointmentModel");
 const Salon = require("../models/salonModel");
 const User = require("../models/userModel");
+const Transaction = require("../models/transactionModel");
 
 /**
  * @desc    Create a new appointment (Guest or Registered)
@@ -24,11 +25,25 @@ const createAppointment = asyncHandler(async (req, res) => {
     throw new Error("Please provide all required appointment details");
   }
 
-  // Verify Salon and Service
-  const salon = await Salon.findById(salonId);
+  // Verify Salon and Owner
+  const salon = await Salon.findById(salonId).populate("owner");
   if (!salon) {
     res.status(404);
     throw new Error("Salon not found");
+  }
+
+  const owner = await User.findById(salon.owner._id);
+  if (!owner) {
+    res.status(404);
+    throw new Error("Salon owner not found");
+  }
+
+  // 🚀 WALLET GATEKEEPER CHECK (Pay-as-you-go)
+  const BOOKING_FEE = 0.50; // The commission fee per booking ($0.50)
+  
+  if (owner.walletBalance < BOOKING_FEE && !owner.isVerified) {
+    res.status(403);
+    throw new Error("This salon is temporarily unable to accept bookings due to low balance.");
   }
 
   const service = salon.services.id(serviceId);
@@ -37,20 +52,14 @@ const createAppointment = asyncHandler(async (req, res) => {
     throw new Error("Service not found");
   }
 
-  // --- GHOST ACCOUNT LOGIC ---
+  // --- GHOST ACCOUNT LOGIC (Kept exactly as you had it) ---
   let customerId;
-
   if (req.user) {
-    // Case A: User is logged in
     customerId = req.user._id;
   } else {
-    // Case B: Guest User
-    // 1. Check if a user with this phone number already exists
     let user = await User.findOne({ phone: clientNumber });
 
     if (!user) {
-      // 2. Create a "Ghost" user if they don't exist
-      // We generate a placeholder email since it's usually required/unique in schemas
       const tempEmail = `${clientNumber}@guest.beautyheaven.site`;
       const tempPassword = Math.random().toString(36).slice(-10);
 
@@ -60,7 +69,7 @@ const createAppointment = asyncHandler(async (req, res) => {
         email: tempEmail,
         password: tempPassword,
         role: "customer",
-        isVerified: true, // We trust them because they provided a phone for the salon
+        isVerified: true, 
       });
     }
     customerId = user._id;
@@ -85,6 +94,23 @@ const createAppointment = asyncHandler(async (req, res) => {
     homeService: homeService || false,
     status: "Pending",
   });
+
+  // 🚀 ✂️ DEDUCT THE COMMISSION FROM THE OWNER'S VIRTUAL WALLET
+  // (We do not deduct if the admin manually verified the account)
+  if (!owner.isVerified) {
+    owner.walletBalance -= BOOKING_FEE;
+    await owner.save();
+
+    // Record the commission deduction in the ledger
+    await Transaction.create({
+      user: owner._id,
+      type: "BOOKING_FEE",
+      amount: BOOKING_FEE,
+      balanceAfter: owner.walletBalance,
+      description: `Commission fee for booking: ${service.name}`,
+      appointmentId: appointment._id
+    });
+  }
 
   res.status(201).json({
     success: true,

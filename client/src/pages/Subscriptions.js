@@ -1,197 +1,207 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BsChatDots } from "react-icons/bs";
-import {
-  FaCheckCircle,
-  FaMapMarkerAlt,
-  FaSpinner,
-  FaStore,
+import { 
+  FaSpinner, 
+  FaWallet, 
+  FaPlus, 
+  FaCheckCircle, 
+  FaExclamationTriangle, 
+  FaHistory 
 } from "react-icons/fa";
-import { MdAnalytics } from "react-icons/md";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useSubscriptionPlans } from "../api/swr";
-import heroBg from "../assets/hero-background.jpg";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getMyTransactions } from "../api"; // 🚀 Imported API helper
 
 const Subscriptions = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // 1. Logic to detect if we are inside the Salon Owner Dashboard
-  const isDashboard = location.pathname.includes("salon-owner");
+  const [depositAmount, setDepositAmount] = useState(10); // Default to $10
+  const [transactions, setTransactions] = useState([]);
+  const [fetchingTransactions, setFetchingTransactions] = useState(true);
 
-  const {
-    data: subscriptions = [],
-    isLoading: loading,
-    error,
-  } = useSubscriptionPlans();
+  // 🚀 1. LOAD TRANSACTIONS HISTORY ON PORTAL LOAD
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setFetchingTransactions(true);
+        const { data } = await getMyTransactions();
+        // Since API returns { success: true, data: [...] }
+        setTransactions(data?.data || data || []);
+      } catch (err) {
+        console.error("Failed to load transaction history:", err);
+      } finally {
+        setFetchingTransactions(false);
+      }
+    };
+    fetchHistory();
+  }, []);
 
-  const [selectedPlan, setSelectedPlan] = useState(null);
-
-  const handleSelectPlan = (plan) => {
-    setSelectedPlan(plan._id);
-    if (user) {
-      // Stay in portal context when moving to payment
-       navigate(`/salon-owner/pay?plan=${plan.slug}`, { state: { plan } });
-    } else {
-      navigate(`/register?plan=${plan.slug}`, { state: { plan } });
+  const handleDeposit = () => {
+    if (depositAmount < 5) {
+      return alert("Minimum deposit amount is $5");
     }
+    // Navigate to the internal payment page we created earlier
+    navigate(`/salon-owner/pay?plan=basic-plan`, { 
+      state: { 
+        customAmount: depositAmount 
+      } 
+    });
   };
 
   return (
-    <div className={`bg-white font-sans ${isDashboard ? "min-h-full" : "relative"}`}>
+    <div className="bg-[#FAF9F6] min-h-full font-sans p-6 md:p-10 animate-in fade-in duration-500">
       
-      {/* 2. HERO SECTION: Only show if NOT in dashboard */}
-      {!isDashboard && (
-        <section
-          className="relative text-center pt-16 pb-48 md:pt-20 md:pb-56 px-4 overflow-hidden -mt-10"
-          style={{
-            backgroundImage: `url(${heroBg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm"></div>
-          <div className="relative z-10 max-w-3xl mx-auto" />
-        </section>
-      )}
+      {/* Header */}
+      <div className="mb-10">
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight">My Wallet & Billing</h1>
+        <p className="text-gray-500 mt-1 text-lg">Manage your balance and complete manual deposits.</p>
+      </div>
 
-      {/* 3. MAIN CONTENT AREA */}
-      <section className={`container mx-auto px-4 md:px-6 relative z-20 ${isDashboard ? "py-6" : "-mt-52"}`}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Dashboard-specific Header */}
-        {isDashboard && (
-          <div className="mb-10">
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Upgrade Your Account</h1>
-            <p className="text-gray-500 mt-2">Select a plan below to activate your salon profile and start receiving bookings.</p>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="text-center py-20">
-            <FaSpinner className="text-5xl text-primary-purple mx-auto animate-spin" />
-            <p className="mt-4 font-semibold text-text-muted">{t("subscriptions.loading")}</p>
-          </div>
-        ) : error ? (
-          <div className="text-center py-16 text-red-700 bg-red-50 p-6 rounded-2xl shadow-xl">
-            <h3 className="font-bold text-lg">{t("subscriptions.errorTitle")}</h3>
-            <p>{t("subscriptions.fetchError")}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {subscriptions.map((plan) => (
-              <div
-                key={plan._id}
-                onClick={() => handleSelectPlan(plan)}
-                className={`bg-white border-2 rounded-[2.5rem] p-8 flex flex-col cursor-pointer transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1
-                  ${selectedPlan === plan._id ? "border-primary-purple ring-4 ring-primary-purple/10" : "border-gray-100"}
-                `}
-              >
-                {/* Plan Header */}
-                <div className="mb-6">
-                  {plan.planName === "Pro" && (
-                    <span className="inline-block bg-primary-purple text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-3">
-                      {t("subscriptions.mostPopular")}
-                    </span>
-                  )}
-                  {plan.amount === 5 && (
-                    <span className="inline-block bg-pink-500 text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-3 animate-pulse">
-                      Special Offer
-                    </span>
-                  )}
-                  <h3 className="text-3xl font-black text-gray-900">{plan.planName}</h3>
-                  
-                  <div className="flex items-baseline mt-4">
-                    <span className="text-5xl font-black tracking-tighter text-gray-900">
-                      <span className="text-2xl mr-1">{plan.currency === 'USD' ? '$' : plan.currency}</span>
-                      {plan.amount}
-                    </span>
-                    <span className="ml-1 text-gray-400 font-bold">/{t("subscriptions.perMonth")}</span>
-                  </div>
-                </div>
-
-                {/* Features List */}
-                <ul className="space-y-4 flex-grow mb-8">
-                  {(plan.planSpecs || []).map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <div className="mt-1 bg-green-100 rounded-full p-0.5">
-                        <FaCheckCircle className="text-green-600 text-sm" />
-                      </div>
-                      <span className="text-gray-600 text-sm font-medium leading-tight">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Select Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectPlan(plan);
-                  }}
-                  className={`w-full py-4 rounded-2xl font-black text-lg transition-all duration-300 ${
-                    selectedPlan === plan._id
-                      ? "bg-gradient-to-r from-primary-pink to-primary-purple text-white shadow-xl scale-95"
-                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                  }`}
-                >
-                  {t("subscriptions.choosePlan")}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* 4. MARKETING CONTENT: Only show if NOT in dashboard */}
-      {!isDashboard && (
-        <>
-          <section className="bg-slate-50 py-24 px-4 mt-20 border-t border-gray-100">
-            <div className="container mx-auto">
-              <h2 className="text-4xl font-black text-center mb-16 tracking-tight text-gray-900">
-                {t("subscriptions.featuresTitle")}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-6"><FaStore className="text-4xl text-primary-pink" /></div>
-                  <h3 className="text-xl font-bold mb-2 text-gray-900">{t("subscriptions.feature1Title")}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{t("subscriptions.feature1Desc")}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-6"><MdAnalytics className="text-4xl text-primary-purple" /></div>
-                  <h3 className="text-xl font-bold mb-2 text-gray-900">{t("subscriptions.feature2Title")}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{t("subscriptions.feature2Desc")}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-6"><FaMapMarkerAlt className="text-4xl text-primary-pink" /></div>
-                  <h3 className="text-xl font-bold mb-2 text-gray-900">{t("subscriptions.feature3Title")}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{t("subscriptions.feature3Desc")}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-6"><BsChatDots className="text-4xl text-primary-purple" /></div>
-                  <h3 className="text-xl font-bold mb-2 text-gray-900">{t("subscriptions.feature4Title")}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{t("subscriptions.feature4Desc")}</p>
-                </div>
-              </div>
+        {/* Left Side: Balance & Deposit Form */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Card 1: Available Balance */}
+          <div className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+            <p className="text-purple-200 text-xs font-black uppercase tracking-widest">Available Balance</p>
+            <div className="flex items-baseline gap-2 mt-4 relative z-10">
+              <h2 className="text-6xl font-black tracking-tighter">$ {user?.walletBalance?.toFixed(2) || "0.00"}</h2>
+              <span className="text-purple-200 font-bold text-lg">USD</span>
             </div>
-          </section>
+            
+            {user?.walletBalance < 0.50 && (
+              <p className="mt-4 text-xs font-bold text-red-300 flex items-center gap-1.5 animate-pulse relative z-10">
+                <FaExclamationTriangle /> Bookings are disabled. Please top up at least $5 to activate your salon.
+              </p>
+            )}
 
-          <section className="container mx-auto px-6 py-24 max-w-4xl">
-            <h2 className="text-4xl font-black text-center mb-16 tracking-tight text-gray-900">
-              {t("subscriptions.faqTitle")}
-            </h2>
+            {/* Background design */}
+            <div className="absolute -bottom-10 -right-10 text-white/5 font-black text-[12rem] select-none">$</div>
+          </div>
+
+          {/* Card 2: Quick Deposit Form */}
+          <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
+            <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+              <FaWallet className="text-primary-purple" /> Top up Wallet
+            </h3>
+
             <div className="space-y-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-                  <h3 className="font-bold text-xl mb-3 text-gray-900">{t(`subscriptions.faq${i}Question`)}</h3>
-                  <p className="text-gray-500 leading-relaxed">{t(`subscriptions.faq${i}Answer`)}</p>
+              {/* Quick Select Buttons */}
+              <div>
+                <p className="text-xs font-black uppercase text-gray-400 tracking-widest mb-3 ml-1">Quick Select Amount</p>
+                <div className="grid grid-cols-3 gap-4">
+                  {[5, 10, 20].map((amt) => (
+                    <button
+                      key={amt}
+                      onClick={() => setDepositAmount(amt)}
+                      className={`py-4 rounded-2xl font-black text-lg transition-all border-2 ${
+                        depositAmount === amt
+                          ? "border-primary-purple bg-purple-50 text-primary-purple"
+                          : "border-gray-100 text-gray-400 hover:border-gray-200"
+                      }`}
+                    >
+                      $ {amt}
+                    </button>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Custom Input */}
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-400 tracking-widest mb-3 ml-1">Or Enter Custom Amount (Min $5)</label>
+                <div className="relative">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400 text-xl">$</span>
+                  <input
+                    type="number"
+                    min="5"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                    className="w-full pl-10 p-5 bg-gray-50 rounded-2xl font-black text-xl outline-none focus:ring-2 focus:ring-primary-purple border-none"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={handleDeposit}
+                className="w-full bg-gradient-to-r from-primary-pink to-primary-purple text-white py-5 rounded-full text-xl font-black shadow-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
+              >
+                <FaPlus /> Top up $ {depositAmount} Now
+              </button>
             </div>
-          </section>
-        </>
-      )}
+          </div>
+
+        </div>
+
+        {/* Right Side: Simple Pricing info card */}
+        <div className="lg:col-span-1">
+          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm sticky top-24">
+             <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+               <FaCheckCircle className="text-green-500" /> Pay-As-You-Go Rules
+             </h3>
+             <ul className="space-y-4 text-sm text-gray-500 font-medium">
+               <li>&bull; Minimum deposit allowed is <strong>$5.00</strong>.</li>
+               <li>&bull; We deduct exactly <strong>$0.50</strong> per successful customer booking.</li>
+               <li>&bull; You are never charged a monthly fee—you only pay when you actually get clients.</li>
+               <li>&bull; If your balance hits $0.00, your booking button automatically closes.</li>
+             </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 🚀 2. TRANSACTION HISTORY TABLE */}
+      <div className="mt-12 bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
+        <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
+          <FaHistory className="text-primary-purple" /> Transaction History
+        </h3>
+
+        {fetchingTransactions ? (
+          <div className="text-center py-10">
+            <FaSpinner className="animate-spin text-3xl text-primary-purple mx-auto" />
+            <p className="text-xs font-black uppercase text-gray-400 mt-2">Loading Ledger...</p>
+          </div>
+        ) : transactions.length === 0 ? (
+          <p className="text-gray-400 italic text-center py-6">No transactions recorded yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b">
+                  <th className="pb-4">Type</th>
+                  <th className="pb-4">Description</th>
+                  <th className="pb-4">Amount</th>
+                  <th className="pb-4">Balance After</th>
+                  <th className="pb-4 text-right">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 text-sm font-medium">
+                {transactions.map((tx) => (
+                  <tr key={tx._id} className="hover:bg-gray-50/50">
+                    <td className="py-4">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
+                        tx.type === "DEPOSIT" ? "bg-emerald-100 text-emerald-700" : "bg-red-50 text-red-600"
+                      }`}>
+                        {tx.type}
+                      </span>
+                    </td>
+                    <td className="py-4 text-gray-700 font-bold">{tx.description}</td>
+                    <td className={`py-4 font-black ${tx.type === "DEPOSIT" ? "text-emerald-600" : "text-gray-800"}`}>
+                      {tx.type === "DEPOSIT" ? "+" : "-"} $ {tx.amount?.toFixed(2)}
+                    </td>
+                    <td className="py-4 text-gray-400 font-bold">$ {tx.balanceAfter?.toFixed(2)}</td>
+                    <td className="py-4 text-right text-gray-400 text-xs">
+                      {new Date(tx.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

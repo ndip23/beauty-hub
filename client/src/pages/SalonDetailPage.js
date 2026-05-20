@@ -23,10 +23,9 @@ const SalonDetailPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   
-  // Lightbox States
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const [activeImages, setActiveImages] = useState([]); // Dynamic list for the slider
+  const [activeImages, setActiveImages] = useState([]);
 
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "", guestName: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
@@ -48,7 +47,6 @@ const SalonDetailPage = () => {
     fetchSalonData();
   }, [fetchSalonData]);
 
-  // Handler to open lightbox with specific images
   const openGallery = (images, index = 0) => {
     if (!images || images.length === 0) return;
     setActiveImages(images);
@@ -93,6 +91,9 @@ const SalonDetailPage = () => {
       const phoneClean = salon?.phone?.replace(/[^0-9]/g, "");
       const whatsappUrl = `https://wa.me/${phoneClean}?text=${encodeURIComponent(bookingData?.chatMessage)}`;
       window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      
+      // Refresh after booking to update wallet state on UI
+      fetchSalonData();
     } catch (err) {
       toast.error(err.response?.data?.message || t("salondetail.bookingFailed"));
     }
@@ -100,6 +101,10 @@ const SalonDetailPage = () => {
 
   if (fetching) return <div className="flex justify-center items-center h-screen"><FaSpinner className="animate-spin text-primary-purple text-5xl" /></div>;
   if (!salon) return <div className="text-center py-20 text-red-600 font-bold">{t("salondetail.loadFailedGoBack")}</div>;
+
+  // 🚀 WALLET SYSTEM CHECK: 
+  // Salon owner must have >= $0.50 to accept bookings
+  const canBook = salon.owner && (salon.owner.walletBalance >= 0.50 || salon.owner.isVerified);
 
   return (
     <div className="bg-[#FAF9F6] min-h-screen pb-20 font-sans">
@@ -160,8 +165,15 @@ const SalonDetailPage = () => {
                             <span className="font-black text-primary-purple text-xl">
                                 {salon.currency} {service.price}
                             </span>
-                            <Button variant="gradient" className="!py-2 !px-6 rounded-2xl text-sm font-bold shadow-md transform active:scale-95" onClick={() => handleBookClick(service)}>
-                                Book
+                            
+                            {/* 🚀 DYNAMIC BUTTON BASED ON BALANCE */}
+                            <Button 
+                              variant={canBook ? "gradient" : "disabled"} 
+                              disabled={!canBook}
+                              onClick={canBook ? () => handleBookClick(service) : null}
+                              className="!py-2 !px-6 rounded-2xl text-sm font-bold shadow-md transform active:scale-95" 
+                            >
+                                {canBook ? t("salondetail.book") : "Unavailable"}
                             </Button>
                         </div>
                     </div>
@@ -234,19 +246,6 @@ const SalonDetailPage = () => {
           </div>
         </div>
       </div>
-
-      {/* 🖼️ IMAGE PREVIEW SLIDER (LIGHTBOX) */}
-      {lightboxOpen && (
-        <Lightbox
-          mainSrc={activeImages[photoIndex]}
-          nextSrc={activeImages[(photoIndex + 1) % activeImages.length]}
-          prevSrc={activeImages[(photoIndex + activeImages.length - 1) % activeImages.length]}
-          onCloseRequest={() => setLightboxOpen(false)}
-          onMovePrevRequest={() => setPhotoIndex((photoIndex + activeImages.length - 1) % activeImages.length)}
-          onMoveNextRequest={() => setPhotoIndex((photoIndex + 1) % activeImages.length)}
-          imageTitle={`Image ${photoIndex + 1} of ${activeImages.length}`}
-        />
-      )}
 
       <BookingModal
         isOpen={isModalOpen}

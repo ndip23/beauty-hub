@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"; // Added useEffect and useState
-import axios from "axios"; // Added axios for IP detection
+import { useEffect, useState } from "react"; 
+import axios from "axios"; 
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useSalons } from "../api/swr";
@@ -14,6 +14,7 @@ const HomePage = () => {
   const [userCountry, setUserCountry] = useState("");
   const [detecting, setDetecting] = useState(true);
 
+  // 1. Detect User Location via IP
   useEffect(() => {
     const detectLocation = async () => {
       try {
@@ -23,6 +24,7 @@ const HomePage = () => {
         }
       } catch (err) {
         console.error("Auto-location detection failed.");
+        setUserCountry("International"); // Fallback
       } finally {
         setDetecting(false);
       }
@@ -30,20 +32,21 @@ const HomePage = () => {
     detectLocation();
   }, []);
 
-  // Featured salons: no country filter (show all verified). Country is banner/UX only.
+  // 2. 🚀 FIXED: Passed userCountry as the 5th parameter to the SWR hook
+  // This ensures the Home Page is also locked to the user's country
   const {
     data: salonsData,
     isLoading,
     error,
     mutate,
-  } = useSalons(1, "", "", "", "");
+  } = useSalons(1, "", "", "", userCountry);
 
   const salons = salonsData?.salons || [];
   const showLoading = detecting || (isLoading && salons.length === 0);
 
   return (
     <div className="bg-white">
-      {/* 3. Location Banner (Optional but recommended for UX) */}
+      {/* Location Banner */}
       {!detecting && userCountry && (
         <div className="bg-gradient-to-r from-primary-purple to-primary-pink text-white py-2 text-center text-[10px] font-black uppercase tracking-[0.2em] shadow-inner">
            <FaMapMarkerAlt className="inline mr-2 mb-0.5 animate-bounce" /> 
@@ -105,10 +108,9 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
-{salons.map(salon => (
-  <SalonCard key={salon._id} salon={salon} />
-))}
+              {salons.map(salon => (
+                <SalonCard key={salon._id} salon={salon} />
+              ))}
             </div>
           )}
 
