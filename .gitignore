@@ -7,7 +7,9 @@
 /build
 /frontend/build
 /dist
-/server/scripts
+/server/scripts/seedAdmin.js
+/server/scripts/salonSeed.js
+/server/scripts/seeder.js
 
 # Log files
 npm-debug.log*
