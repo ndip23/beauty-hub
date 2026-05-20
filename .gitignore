@@ -7,6 +7,7 @@
 /build
 /frontend/build
 /dist
+/scripts
 
 # Log files
 npm-debug.log*
