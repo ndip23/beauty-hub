@@ -3,24 +3,38 @@ import { apiClient } from "./index";
 
 const fetcher = (url) => apiClient.get(url).then((res) => res.data);
 
-// export const useSalons = (pageNumber = 1, keyword = "") => 
-//   useSWR(`/api/salons?pageNumber=${pageNumber}&keyword=${keyword}`, fetcher);
-
-export const useSalons = (pageNumber = 1, keyword = "", address = "", city = "", country = "") => {
-
+// 🚀 UPDATED: Clean, Optimized useSalons Hook
+export const useSalons = (
+  pageNumber = 1,
+  keyword = "",
+  address = "",
+  city = "",
+  country = "",
+  lat = "",
+  lng = "",
+  radius = "30"
+) => {
   const queryParams = new URLSearchParams();
-  
   queryParams.append("pageNumber", pageNumber);
-  
+
   if (keyword?.trim()) queryParams.append("keyword", keyword.trim());
   if (address?.trim()) queryParams.append("address", address.trim());
   if (city?.trim()) queryParams.append("city", city.trim());
-  // Added only the country parameter update below
   if (country?.trim()) queryParams.append("country", country.trim());
+  
+  // Convert lat and lng to strings before trimming to prevent crashes if they are numbers
+  if (lat && String(lat).trim()) queryParams.append("lat", String(lat).trim());
+  if (lng && String(lng).trim()) queryParams.append("lng", String(lng).trim());
+  if (radius && String(radius).trim()) queryParams.append("radius", String(radius).trim());
 
   const url = `/api/salons?${queryParams.toString()}`;
 
-  return useSWR(url, fetcher, { keepPreviousData: true });
+  // 🚀 FIXED: SWR only makes the call if the country has been resolved or there is a keyword
+  // This completely stops the "flicker" and duplicate salon results on the home page.
+  const shouldFetch = country?.trim() !== "" || keyword?.trim() !== "" || (lat && lng);
+  const key = shouldFetch ? url : null;
+
+  return useSWR(key, fetcher, { keepPreviousData: true });
 };
 
 export const useSalon = (id) =>
@@ -58,6 +72,7 @@ export const useActiveSubscription = (userId) =>
     userId ? `/api/subscriptions/${userId}/get-active-subscription` : null,
     fetcher
   );
+
 export const useAdminStats = () => useSWR("/api/admin/stats", fetcher);
 export const useAdminSalons = () => useSWR("/api/admin/salons", fetcher);
 export const useAdminUsers = () => useSWR("/api/admin/users", fetcher);

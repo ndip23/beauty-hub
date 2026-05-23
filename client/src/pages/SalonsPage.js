@@ -306,12 +306,15 @@ const SalonsPage = () => {
 
   // 🚀 FIXED: SWR only fetches when 'userCountry' has been detected
   // This prevents the page from accidentally loading a global mixture first
+  const shouldFetch = !isDetecting || (lat && lng);
+  const countryForHook = shouldFetch ? userCountry : null;
+
   const { data: salonsData, isLoading: loading, error, mutate } = useSalons(
     pageNumber,
     keyword,
-    "",           
-    "",           
-    userCountry, 
+    "",
+    "",
+    countryForHook,
     lat,
     lng,
     radius

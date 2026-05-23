@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next"; // Added this
 import { FaPlus, FaTrash, FaEdit, FaSpinner, FaStoreAlt } from "react-icons/fa";
 import { useMySalon } from "../api/swr";
@@ -14,6 +14,12 @@ const SalonServicesPage = () => {
   const { data: salonData, isLoading, mutate } = useMySalon();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const firstServiceCreatedRef = useRef(false);
+  const previousServiceCountRef = useRef(salonData?.services?.length || 0);
+
+  useEffect(() => {
+    previousServiceCountRef.current = salonData?.services?.length || 0;
+  }, [salonData?.services?.length]);
 
   const handleFormSubmit = async (serviceData) => {
     if (!salonData?._id) return toast.error("Create profile first.");
@@ -30,10 +36,17 @@ const SalonServicesPage = () => {
       } else {
         await addService(salonData._id, payload);
         toast.success(t("salonservices.addSuccess"));
+        const previousCount = previousServiceCountRef.current;
+        firstServiceCreatedRef.current = previousCount === 0;
       }
-      mutate();
+
+      await mutate();
       setIsModalOpen(false);
       setEditingService(null);
+
+      if (!editingService && firstServiceCreatedRef.current) {
+        navigate("/salon-owner/dashboard");
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to save service");
     }

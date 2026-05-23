@@ -35,9 +35,10 @@ const SalonProfilePage = () => {
     currency: "XAF",
     photos: [],
   });
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (salon) {
+    if (salon && !isInitialized) {
       setFormData({
         name: salon.name || "",
         description: salon.description || "",
@@ -47,8 +48,9 @@ const SalonProfilePage = () => {
         currency: salon.currency || "XAF",
         photos: salon.photos || [],
       });
+      setIsInitialized(true);
     }
-  }, [salon]);
+  }, [salon, isInitialized]);
 
   const handleChange = (e) => {
     // 🚀 FIXED: Ensure the phone state is fully updated on keystroke

@@ -113,7 +113,7 @@ function App() {
   }
 
   return (
-    <SWRConfig value={{ revalidateOnFocus: true, dedupingInterval: 15000, errorRetryCount: 2 }}>
+    <SWRConfig value={{ revalidateOnFocus: false, revalidateOnReconnect: false, dedupingInterval: 15000, errorRetryCount: 2 }}>
       <div className="font-sans">
         <ScrollToTop />
         <ToastContainer position="top-right" autoClose={3000} />

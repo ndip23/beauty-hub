@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"; 
+import { useEffect, useMemo, useState } from "react"; 
 import axios from "axios"; 
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -32,6 +32,15 @@ const HomePage = () => {
     detectLocation();
   }, []);
 
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   // 2. 🚀 FIXED: Passed userCountry as the 5th parameter to the SWR hook
   // This ensures the Home Page is also locked to the user's country
   const {
@@ -41,7 +50,13 @@ const HomePage = () => {
     mutate,
   } = useSalons(1, "", "", "", userCountry);
 
-  const salons = salonsData?.salons || [];
+  const salons = useMemo(() => salonsData?.salons || [], [salonsData?.salons]);
+  const [shuffledSalons, setShuffledSalons] = useState([]);
+
+  useEffect(() => {
+    setShuffledSalons(salons.length > 0 ? shuffleArray(salons) : salons);
+  }, [salons]);
+
   const showLoading = detecting || (isLoading && salons.length === 0);
 
   return (
@@ -60,7 +75,7 @@ const HomePage = () => {
             <SalonSearchBar />
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
             <div>
               <h2 className="text-4xl font-bold text-text-main mb-2">
                 {t("homePage.featuredSalons.title")}
@@ -71,13 +86,15 @@ const HomePage = () => {
                   : t("homePage.featuredSalons.description")}
               </p>
             </div>
-            <Link
-              to="/salons"
-              className="mt-4 md:mt-0 flex items-center text-primary-purple hover:text-primary-pink transition-colors font-semibold"
-            >
-              {t("homePage.featuredSalons.viewAll")}{" "}
-              <FaArrowRight className="ml-2" />
-            </Link>
+            <div className="flex flex-wrap gap-3 items-center mt-4 md:mt-0">
+              <Link
+                to="/salons"
+                className="inline-flex items-center text-primary-purple hover:text-primary-pink transition-colors font-semibold"
+              >
+                {t("homePage.featuredSalons.viewAll")} {" "}
+                <FaArrowRight className="ml-2" />
+              </Link>
+            </div>
           </div>
 
           {showLoading ? (
@@ -108,7 +125,7 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {salons.map(salon => (
+              {shuffledSalons.map(salon => (
                 <SalonCard key={salon._id} salon={salon} />
               ))}
             </div>

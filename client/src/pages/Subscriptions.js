@@ -28,7 +28,7 @@ const Subscriptions = () => {
     if (syncWallet) {
       syncWallet(); // This fetches the real database balance and updates 'user.walletBalance'
     }
-  }, []); // Runs once when page loads
+  }, [syncWallet]); // Runs once when page loads
 
   // 🚀 2. LOAD TRANSACTIONS HISTORY ON PORTAL LOAD
   useEffect(() => {
@@ -45,7 +45,7 @@ const Subscriptions = () => {
       }
     };
     fetchHistory();
-  }, []);
+  }, [syncWallet]);
 
   const handleDeposit = () => {
     if (depositAmount < 5) {

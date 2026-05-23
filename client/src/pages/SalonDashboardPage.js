@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { 
   FaCalendarPlus, FaRegComments, FaRegStar, FaSpinner, FaPlus, 
-  FaWallet, FaStore, FaConciergeBell, FaCalendarAlt, FaArrowRight, FaCopy, FaCheck 
+  FaWallet, FaStore, FaConciergeBell, FaCalendarAlt, FaArrowRight, FaCopy, FaCheck, FaTimes 
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useMySalon, useSalonAppointments } from "../api/swr";
@@ -18,9 +18,59 @@ const SalonDashboardPage = () => {
   const { data: appointments = [], isLoading: loadingAppointments } = useSalonAppointments(salonData?._id);
 
   const [copied, setCopied] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
 
   const loading = loadingSalon || loadingAppointments;
   const needsToCreateProfile = !salonData || salonError?.status === 404;
+
+  const tourSteps = [
+    {
+      title: "Welcome to your salon dashboard",
+      description: "This is your control center. Use the quick links below to update your profile, add services, check bookings and manage payments.",
+    },
+    {
+      title: "Wallet & Top-up",
+      description: "Keep your wallet funded to stay live. Tap here to instantly add funds and continue receiving bookings.",
+    },
+    {
+      title: "Edit Profile",
+      description: "Use this card to update your salon details, contact info, and photos so customers can find you easily.",
+    },
+    {
+      title: "Appointments",
+      description: "Check upcoming bookings and client requests from one place. This card takes you to the appointment calendar.",
+    },
+  ];
+
+  useEffect(() => {
+    const tourSeen = localStorage.getItem("salonDashboardTourSeen");
+    const hasWallet = user && (Number(user.walletBalance) >= 0.5 || user.isVerified);
+    const hasServices = salonData && salonData.services && salonData.services.length > 0;
+
+    if (!tourSeen && salonData && hasWallet && hasServices) {
+      setShowTour(true);
+    }
+  }, [salonData, user]);
+
+  const closeTour = () => {
+    localStorage.setItem("salonDashboardTourSeen", "true");
+    setShowTour(false);
+  };
+
+  const nextTourStep = () => {
+    if (tourStep >= tourSteps.length - 1) {
+      closeTour();
+      return;
+    }
+    setTourStep((prev) => prev + 1);
+  };
+
+  const prevTourStep = () => {
+    if (tourStep > 0) {
+      setTourStep((prev) => prev - 1);
+    }
+  };
 
   const todayAppointments = useMemo(() =>
       appointments?.filter((a) => 
@@ -137,18 +187,65 @@ const SalonDashboardPage = () => {
       
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-primary-purple to-purple-600 text-white p-8 rounded-3xl shadow-lg">
-        <h1 className="text-4xl font-semibold">{t("salondashboard.welcomeBack", { name: salonData?.name || user?.name })}</h1>
-        <p className="opacity-90 mt-2 text-lg">{t("salondashboard.summary")}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-semibold">{t("salondashboard.welcomeBack", { name: salonData?.name || user?.name })}</h1>
+            <p className="opacity-90 mt-2 text-lg">{t("salondashboard.summary")}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setTourStep(0); setShowTour(true); }}
+            className="inline-flex items-center justify-center rounded-full bg-white/10 border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/20 transition"
+          >
+            Need help?
+          </button>
+        </div>
       </div>
+
+      {showTour && (
+        <div className="fixed bottom-6 right-4 left-4 md:right-8 md:left-auto z-50 max-w-md mx-auto md:mx-0 md:w-[360px] bg-white shadow-2xl ring-1 ring-black/10 rounded-3xl border border-gray-100 p-6 animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.28em] text-primary-purple font-black">Tour</p>
+              <h2 className="text-xl font-black text-gray-900 mt-2">{tourSteps[tourStep].title}</h2>
+            </div>
+            <button onClick={closeTour} className="text-gray-400 hover:text-gray-700 transition">
+              <FaTimes size={18} />
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 leading-relaxed mb-5">{tourSteps[tourStep].description}</p>
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={prevTourStep}
+              disabled={tourStep === 0}
+              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span>{tourStep + 1}</span>/
+              <span>{tourSteps.length}</span>
+            </div>
+            <button
+              type="button"
+              onClick={nextTourStep}
+              className="rounded-full bg-primary-purple text-white px-4 py-2 text-sm font-semibold hover:bg-purple-700 transition"
+            >
+              {tourStep === tourSteps.length - 1 ? "Finish" : "Next"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 🚀 QUICK ACTION CARDS MOVED TO THE TOP (Requirement 3) */}
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {quickLinks.map((link, i) => (
             <Link 
               key={i} 
               to={link.path} 
-              className="group bg-white p-6 rounded-[2rem] border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all flex flex-col justify-between h-48 shadow-sm"
+              className="group bg-white p-5 rounded-[2rem] border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all flex flex-col justify-between h-44 shadow-sm"
             >
               <div className="flex justify-between items-start">
                 <div className={`p-4 rounded-2xl border ${link.color}`}>

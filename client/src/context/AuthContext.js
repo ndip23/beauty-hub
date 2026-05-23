@@ -70,7 +70,21 @@ export const AuthProvider = ({ children }) => {
     const { data } = await loginUser(formData);
     localStorage.setItem('userInfo', JSON.stringify(data));
     setUser(data);
-    return data; 
+
+    try {
+      const { data: profileData } = await API.get('/api/users/profile');
+      const mergedData = {
+        ...data,
+        ...profileData,
+        token: data.token,
+      };
+      localStorage.setItem('userInfo', JSON.stringify(mergedData));
+      setUser(mergedData);
+      return mergedData;
+    } catch (error) {
+      console.error('Failed to fetch user profile after login', error);
+      return data;
+    }
   };
 
   // Register function
