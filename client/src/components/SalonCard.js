@@ -75,7 +75,6 @@ const SalonCard = ({ salon }) => {
   // 🚀 WALLET PROTECTION CHECK (Per Booking System)
   // Owner must have >= $0.50, or be verified by Admin to show active action buttons
   const MIN_REQUIRED_FEE = 0.50;
-  const canBook = salon.owner && (salon.owner.walletBalance >= MIN_REQUIRED_FEE || salon.owner.isVerified);
 
   return (
     <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-500 flex flex-col h-full group">
