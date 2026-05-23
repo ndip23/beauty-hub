@@ -1,41 +1,40 @@
-// src/pages/SalonAppointmentsPage.js
 import dayGridPlugin from "@fullcalendar/daygrid/index.js";
 import interactionPlugin from "@fullcalendar/interaction/index.js";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid/index.js";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react"; // Added useMemo, removed useEffect
 import { useTranslation } from "react-i18next";
-import { FaCheckCircle, FaQuestionCircle, FaSpinner } from "react-icons/fa";
+import { FaCheckCircle, FaQuestionCircle, FaSpinner, FaExclamationTriangle } from "react-icons/fa";
 import { toast } from "react-toastify";
-import {
-  updateAppointmentStatus,
-} from "../api";
-import { useActiveSubscription, useMySalon, useSalonAppointments } from "../api/swr";
-import AlertBox from "../components/AlertBox";
+import { Link } from "react-router-dom"; 
+import { updateAppointmentStatus } from "../api";
+import { useMySalon, useSalonAppointments } from "../api/swr";
 import Button from "../components/Button";
 import { useAuth } from "../context/AuthContext";
 
 const SalonAppointmentsPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [events, setEvents] = useState([]);
+  
+  // Removed local events state to prevent the recursive infinite render loop
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const {
-    data: subscriptionData,
-    isLoading: loadingSubscription,
-  } = useActiveSubscription(user?._id);
+
   const { data: salon, isLoading: loadingSalon } = useMySalon();
   const {
     data: appointments = [],
     isLoading: loadingAppointments,
     error,
   } = useSalonAppointments(salon?._id);
-  const loading = loadingSubscription || loadingSalon || loadingAppointments;
-  const hasActiveSubscription = !!subscriptionData?.data;
 
-  useEffect(() => {
-    if (!appointments) return;
-    const formattedEvents = appointments.map((appt) => ({
+  const loading = loadingSalon || loadingAppointments;
+
+  // 🚀 WALLET SYSTEM CHECK: Replace subscription check
+  const hasNoAccess = user && user.walletBalance < 0.50 && !user.isVerified;
+
+  // 🚀 THE LOOP FIX: Compute events dynamically only when appointments change
+  const events = useMemo(() => {
+    if (!appointments) return [];
+    return appointments.map((appt) => ({
       id: appt._id,
       title: `${appt.customer?.name || appt.clientName} - ${appt.serviceName || "Service"}`,
       start: appt.startTime || appt.appointmentDateTime,
@@ -54,8 +53,7 @@ const SalonAppointmentsPage = () => {
           ? "#F59E0B"
           : "#EF4444",
     }));
-    setEvents(formattedEvents);
-  }, [appointments]);
+  }, [appointments]); // Only recalculates when the API data actually updates
 
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event.extendedProps);
@@ -65,16 +63,13 @@ const SalonAppointmentsPage = () => {
     if (!selectedEvent) return;
     try {
       await updateAppointmentStatus(selectedEvent._id, { status: "Confirmed" });
-
-      setEvents((prevEvents) =>
-        prevEvents.map((e) =>
-          e.id === selectedEvent._id
-            ? { ...e, backgroundColor: "#10B981", borderColor: "#10B981" }
-            : e
-        )
-      );
+      
       setSelectedEvent((prev) => ({ ...prev, status: "Confirmed" }));
       toast.success(t("appointments.confirmed"));
+      
+      // Since SWR caches the results, we can trigger an SWR cache revalidation 
+      // instead of manually modifying local array states, preventing inconsistencies.
+      window.location.reload(); 
     } catch (error) {
       console.error("Failed to confirm appointment:", error);
       toast.error(t("appointments.confirmFailed"));
@@ -87,28 +82,36 @@ const SalonAppointmentsPage = () => {
         <FaSpinner className="animate-spin text-4xl text-primary-purple" />
       </div>
     );
-  if (!hasActiveSubscription)
+
+  // 🚀 WALLET PROTECTION BLOCKADE (Replacing Subscription Block)
+  if (hasNoAccess)
     return (
-      <AlertBox
-        title={t("salondashboard.noSubscription")}
-        message={t("appointments.subscriptionRequired")}
-        type="warning"
-        actionLabel={t("salondashboard.choosePlan")}
-        actionLink="/subscriptions"
-      />
+      <div className="max-w-xl mx-auto mt-10 bg-white border-2 border-yellow-100 p-10 rounded-[3rem] shadow-2xl text-center">
+        <div className="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-600 text-3xl">
+           <FaExclamationTriangle />
+        </div>
+        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Wallet Top-up Required</h2>
+        <p className="text-gray-500 mt-4 text-lg leading-relaxed font-medium">
+            Your virtual wallet balance is below the minimum required limit. Please top up your wallet to view your appointments calendar.
+        </p>
+        <Link to="/salon-owner/billing">
+          <button className="mt-8 bg-purple-600 text-white px-12 py-4 rounded-full font-black text-lg shadow-xl hover:bg-purple-700 hover:scale-105 transition-all">
+            Top up Wallet &rarr;
+          </button>
+        </Link>
+      </div>
     );
+
   if (error)
     return (
-      <AlertBox
-        title={t("appointments.error")}
-        message={t("appointments.errorLoad")}
-        type="error"
-        onRetry={() => window.location.reload()}
-      />
+      <div className="text-center py-20 bg-red-50 rounded-[3rem] border border-red-100 max-w-xl mx-auto p-10">
+        <h2 className="text-2xl font-black text-red-700">Connection Error</h2>
+        <button onClick={() => window.location.reload()} className="mt-8 bg-red-600 text-white px-10 py-3 rounded-full font-black">Retry</button>
+      </div>
     );
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <h1 className="text-3xl font-bold text-text-main mb-6">
         {t("appointments.title")}
       </h1>
@@ -134,7 +137,7 @@ const SalonAppointmentsPage = () => {
           {selectedEvent ? (
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">
-                {selectedEvent.customer.name}
+                {selectedEvent.customer?.name || selectedEvent.clientName}
               </h3>
               <p
                 className={`flex items-center space-x-2 text-sm font-semibold ${
@@ -158,13 +161,12 @@ const SalonAppointmentsPage = () => {
                   {selectedEvent.serviceName}
                 </p>
                 <p>
+                  <strong>Phone Number:</strong>{" "}
+                  {selectedEvent.customer?.phone || selectedEvent.clientNumber}
+                </p>
+                <p>
                   <strong>{t("appointments.time")}:</strong>{" "}
-                  {new Date(selectedEvent.startTime).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}{" "}
-                  -{" "}
-                  {new Date(selectedEvent.endTime).toLocaleTimeString([], {
+                  {new Date(selectedEvent.startTime || selectedEvent.appointmentDateTime).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}

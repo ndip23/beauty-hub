@@ -96,13 +96,16 @@ const createAppointment = asyncHandler(async (req, res) => {
   });
 
   // 🚀 ✂️ DEDUCT THE COMMISSION FROM THE OWNER'S VIRTUAL WALLET
-  // (We do not deduct if the admin manually verified the account)
   if (!owner.isVerified) {
     owner.walletBalance -= BOOKING_FEE;
     await owner.save();
 
+    // 🚀 GENERATE A UNIQUE TRANSACTION ID (Required by your Transaction schema)
+    const customTransactionId = `TXN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
     // Record the commission deduction in the ledger
     await Transaction.create({
+      transactionId: customTransactionId, // 🚀 FIXED: Added the required transactionId field
       user: owner._id,
       type: "BOOKING_FEE",
       amount: BOOKING_FEE,

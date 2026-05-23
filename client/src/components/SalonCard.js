@@ -61,7 +61,7 @@ import React, { useState } from "react";
 import { FaCheckCircle, FaStar, FaMapMarkerAlt, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Button from "./Button";
-import InquiryModal from "./InquiryModal";   
+import InquiryModal from "./InquiryModal";
 
 const SalonCard = ({ salon }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,15 +80,15 @@ const SalonCard = ({ salon }) => {
   return (
     <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-500 flex flex-col h-full group">
       <div className="relative overflow-hidden">
-        <img 
-          className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110" 
-          src={displayImage} 
-          alt={salon.name} 
-          loading="lazy" 
+        <img
+          className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
+          src={displayImage}
+          alt={salon.name}
+          loading="lazy"
         />
         {salon.isVerified && (
           <div className="absolute bottom-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1 shadow-lg z-10">
-            <FaCheckCircle size={10}/> Verified
+            <FaCheckCircle size={10} /> Verified
           </div>
         )}
       </div>
@@ -115,29 +115,20 @@ const SalonCard = ({ salon }) => {
           </div>
 
           <div className="flex gap-2">
-            {/* 🚀 DYNAMIC BOOK BUTTON */}
-            {canBook ? (
-              <Link to={`/salon/${salon.slug}`}>
-                <Button variant="gradient" className="!py-2 !px-6 rounded-full font-bold shadow-lg">
-                  Book
-                </Button>
-              </Link>
-            ) : (
-              <Button variant="disabled" disabled={true} className="!py-2 !px-6 rounded-full font-bold">
-                Unavailable
+            {/* Clean Book Button */}
+            <Link to={`/salon/${salon.slug}`}>
+              <Button variant="gradient" className="!py-2 !px-6 rounded-full font-bold shadow-lg">
+                Book
               </Button>
-            )}
+            </Link>
 
-            {/* 🚀 DYNAMIC MESSAGE BUTTON */}
-            <Button 
-              onClick={canBook ? () => setIsModalOpen(true) : null}
-              variant={canBook ? "outline" : "disabled"}
-              disabled={!canBook}
-              className={`!py-2 !px-5 rounded-full font-medium flex items-center gap-2 ${
-                canBook ? "hover:bg-gray-50" : ""
-              }`}
+            {/* Clean Message Button */}
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              variant="outline"
+              className="!py-2 !px-5 rounded-full font-medium flex items-center gap-2 hover:bg-gray-50"
             >
-              <FaEnvelope /> {canBook ? "Message" : "Locked"}
+              <FaEnvelope /> Message
             </Button>
           </div>
         </div>

@@ -14,14 +14,23 @@ import { getMyTransactions } from "../api"; // 🚀 Imported API helper
 
 const Subscriptions = () => {
   useTranslation();
-  const { user } = useAuth();
+  
+  // 🚀 WALLET SYSTEM UPDATE: Pulling 'syncWallet' here from our updated AuthContext
+  const { user, syncWallet } = useAuth(); 
   const navigate = useNavigate();
 
   const [depositAmount, setDepositAmount] = useState(10); // Default to $10
   const [transactions, setTransactions] = useState([]);
   const [fetchingTransactions, setFetchingTransactions] = useState(true);
 
-  // 🚀 1. LOAD TRANSACTIONS HISTORY ON PORTAL LOAD
+  // 🚀 1. FORCE THE WALLET BALANCE TO SYNC WITH THE DATABASE ON PORTAL MOUNT
+  useEffect(() => {
+    if (syncWallet) {
+      syncWallet(); // This fetches the real database balance and updates 'user.walletBalance'
+    }
+  }, []); // Runs once when page loads
+
+  // 🚀 2. LOAD TRANSACTIONS HISTORY ON PORTAL LOAD
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -68,6 +77,7 @@ const Subscriptions = () => {
           <div className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden">
             <p className="text-purple-200 text-xs font-black uppercase tracking-widest">Available Balance</p>
             <div className="flex items-baseline gap-2 mt-4 relative z-10">
+              {/* 🚀 This now reads the live synced balance */}
               <h2 className="text-6xl font-black tracking-tighter">$ {user?.walletBalance?.toFixed(2) || "0.00"}</h2>
               <span className="text-purple-200 font-bold text-lg">USD</span>
             </div>
@@ -151,7 +161,7 @@ const Subscriptions = () => {
         </div>
       </div>
 
-      {/* 🚀 2. TRANSACTION HISTORY TABLE */}
+      {/* 🚀 3. TRANSACTION HISTORY TABLE */}
       <div className="mt-12 bg-white p-8 md:p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
         <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
           <FaHistory className="text-primary-purple" /> Transaction History

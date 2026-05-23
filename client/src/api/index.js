@@ -52,6 +52,7 @@ export const deleteService = (salonId, serviceId) =>
 export const fetchSalonReviews = (salonId) =>
   API.get(`/api/salons/${salonId}/reviews`);
 export const fetchSalonAnalytics = () => API.get("/api/analytics");
+
 export const fetchMyMessages = () => API.get("/api/messages");
 export const addReviewReply = (reviewId, replyData) =>
   API.put(`/api/reviews/${reviewId}/reply`, replyData);
@@ -130,6 +131,7 @@ export const fetchReviews = (salonId) =>
   API.get(`/api/salons/${salonId}/reviews`);
 export const getPlanBySlug = (slug) => API.get(`api/subscription-types/slug/${slug}`);
 export const getSalonBySlug = (slug) => API.get(`api/salons/s/${slug}`);
+export const getUserProfile = () => API.get("/api/users/profile");
 
 /** Add a new product to salon */
 export const addProduct = (salonId, productData) =>

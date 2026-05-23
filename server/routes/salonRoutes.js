@@ -120,23 +120,23 @@ router.route("/").post(protect, createSalon);               // Create salon
 router.route("/mysalon").get(protect, getMySalon);          // Owner's salon
 
 // Update salon (Owner only)
-router.route("/:id").put(protect, requireActiveSubscription, updateSalon);
+router.route("/:id").put(protect,  updateSalon);
 
 // ====================== SERVICE ROUTES ======================
-router.route("/:id/services").post(protect, requireActiveSubscription, addSalonService);
+router.route("/:id/services").post(protect,  addSalonService);
 
 router
   .route("/:id/services/:service_id")
-  .put(protect, requireActiveSubscription, updateSalonService)
-  .delete(protect, requireActiveSubscription, deleteSalonService);
+  .put(protect,  updateSalonService)
+  .delete(protect,  deleteSalonService);
 
 // ====================== PRODUCT ROUTES ======================
-router.route("/:id/products").post(protect, requireActiveSubscription, addSalonProduct);
+router.route("/:id/products").post(protect, addSalonProduct);
 
 router
   .route("/:id/products/:product_id")
-  .put(protect, requireActiveSubscription, updateSalonProduct)
-  .delete(protect, requireActiveSubscription, deleteSalonProduct);
+  .put(protect, updateSalonProduct)
+  .delete(protect,  deleteSalonProduct);
 
 // --- Review Router ---
 router.use("/:id/reviews", reviewRouter);

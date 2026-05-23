@@ -84,7 +84,6 @@ const registerUser = asyncHandler(async (req, res) => {
     email: user.email,
     role: user.role,
     phone: user.phone,
-    token: generateToken(user._id),
   });
 });
 
@@ -263,6 +262,9 @@ const authUser = asyncHandler(async (req, res) => {
  *       401:
  *         description: Not authorized
  */
+// @desc    Update / Get logged-in user's profile
+// @route   PUT /api/users/profile
+// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -270,57 +272,119 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     user.name = req.body.name || user.name;
     user.phone = req.body.phone || user.phone;
 
+    let tokenUpdated = false;
     if (req.body.password) {
       user.password = req.body.password; // pre-save hook hashes it
+      tokenUpdated = true;
     }
 
     const updatedUser = await user.save();
 
-    res.json({
+    // Prepare response payload
+    const responsePayload = {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
       phone: updatedUser.phone,
       role: updatedUser.role,
-      token: generateToken(updatedUser._id),
+      walletBalance: updatedUser.walletBalance || 0, // 🚀 Syncs the wallet
+      isVerified: updatedUser.isVerified || false,
+    };
+
+    // Only generate a new token if the password was changed
+    if (tokenUpdated) {
+      responsePayload.token = generateToken(updatedUser._id);
+    } else {
+      // Keep using their existing token passed in the request header
+      responsePayload.token = req.headers.authorization.split(" ")[1];
+    }
+
+    res.json(responsePayload);
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+// @desc    Get logged-in user's profile
+// @route   GET /api/users/profile
+// @access  Private
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select("-password");
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      walletBalance: user.walletBalance || 0, // 🚀 Syncs the wallet
+      isVerified: user.isVerified || false,
     });
   } else {
     res.status(404);
     throw new Error("User not found");
   }
 });
-// @desc    Self-Service Password Reset (Security Check)
-// @route   PUT /api/users/self-reset-password
-const selfResetPassword = asyncHandler(async (req, res) => {
-  const { identifier, salonName, newPassword } = req.body;
+// @desc    Request password reset link
+// @route   POST /api/users/forgot-password
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
 
-  // 1. Find the user by Username or Email
-  const user = await User.findOne({ 
-    $or: [{ username: identifier }, { email: identifier }] 
+  if (!email) {
+    res.status(400);
+    throw new Error("Email is required");
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+  await user.save();
+
+  const resetLink = `${getFrontendBaseUrl()}/reset-password/${token}`;
+  await sendVerificationEmail(user.email, resetLink, {
+    subject: "Reset your password",
+    title: "Password Reset",
+    message: "Click below to reset your password:",
+    buttonText: "Reset Password",
+  });
+
+  res.json({ message: "If that email exists, a reset link has been sent." });
+});
+
+// @desc    Reset password using token
+// @route   PUT /api/users/reset-password/:token
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!password) {
+    res.status(400);
+    throw new Error("New password is required");
+  }
+
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
   });
 
   if (!user) {
-    res.status(404);
-    throw new Error("User account not found.");
+    res.status(400);
+    throw new Error("Invalid or expired password reset token");
   }
 
-  // 2. SECURITY CHECK: Find the salon belonging to this user
-  const Salon = require("../models/salonModel"); // Import here to avoid circular dependency
-  const salon = await Salon.findOne({ owner: user._id });
-
-  // Compare input Salon Name with Database (case-insensitive)
-  if (!salon || salon.name.toLowerCase() !== salonName.toLowerCase()) {
-    res.status(401);
-    throw new Error("Security check failed: Salon name does not match this account.");
-  }
-
-  // 3. Update Password
-  user.password = newPassword; 
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
   await user.save();
 
-  res.json({ success: true, message: "Identity verified! Password updated successfully." });
+  res.json({ message: "Password has been reset successfully." });
 });
-
 
 module.exports = {
   registerUser,
@@ -328,5 +392,7 @@ module.exports = {
   updateUserProfile,
   verifyEmail,
   resendVerification,
-  selfResetPassword
+  forgotPassword,
+  resetPassword,
+  getUserProfile,
 };

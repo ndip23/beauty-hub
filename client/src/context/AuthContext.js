@@ -1,6 +1,5 @@
-// src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { loginUser, registerUser } from '../api'; // We'll use our existing API calls
+import { loginUser, registerUser, API } from '../api'; // Standardized API imports
 
 // 1. Create the Context
 const AuthContext = createContext();
@@ -8,21 +7,62 @@ const AuthContext = createContext();
 // 2. Create the Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // To check if we've loaded the user from localStorage
+  const [loading, setLoading] = useState(true);
 
   // This effect runs once when the app starts
   useEffect(() => {
-    try {
+    const initializeAuth = async () => {
       const storedUser = localStorage.getItem('userInfo');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      if (!storedUser) {
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Failed to parse user info from localStorage", error);
-      localStorage.removeItem('userInfo');
-    } finally {
-      setLoading(false);
-    }
+
+      let parsedUser;
+      try {
+        parsedUser = JSON.parse(storedUser);
+      } catch (error) {
+        console.error("Failed to parse user info from localStorage", error);
+        localStorage.removeItem('userInfo');
+        setLoading(false);
+        return;
+      }
+
+      setUser(parsedUser);
+
+      if (!parsedUser?.token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data } = await API.get("/api/users/profile", {
+          headers: { Authorization: `Bearer ${parsedUser.token}` },
+        });
+
+        const hasWalletChanged = Number(parsedUser.walletBalance) !== Number(data.walletBalance);
+        const hasVerificationChanged = Boolean(parsedUser.isVerified) !== Boolean(data.isVerified);
+
+        if (hasWalletChanged || hasVerificationChanged) {
+          const updatedUser = { ...parsedUser, ...data };
+          setUser(updatedUser);
+          localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+          console.log("Wallet and verification state synced with DB.");
+        }
+      } catch (error) {
+        console.error("Failed to sync user profile during auth initialization", error);
+
+        const status = error.response?.status;
+        if (status === 401 || status === 403) {
+          localStorage.removeItem('userInfo');
+          setUser(null);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   // Login function
@@ -30,7 +70,7 @@ export const AuthProvider = ({ children }) => {
     const { data } = await loginUser(formData);
     localStorage.setItem('userInfo', JSON.stringify(data));
     setUser(data);
-    return data; // Return user data for redirection
+    return data; 
   };
 
   // Register function
@@ -47,6 +87,21 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Helper to manually trigger a wallet sync after payments
+  const syncWallet = async () => {
+    if (!user?.token) return;
+    try {
+      const { data } = await API.get("/api/users/profile", {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      const updatedUser = { ...user, ...data };
+      setUser(updatedUser);
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+    } catch (err) {
+      console.error("Failed to sync wallet manually:", err);
+    }
+  };
+
   // The value that will be available to all consuming components
   const value = {
     user,
@@ -54,6 +109,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    syncWallet 
   };
 
   return (

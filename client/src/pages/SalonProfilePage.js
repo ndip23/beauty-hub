@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { 
   FaSpinner, 
@@ -16,10 +17,12 @@ import { uploadToCloudinary } from "../utils/upload";
 import { toast } from "react-toastify";
 import Button from "../components/Button";
 
+
 const SalonProfilePage = () => {
-  const { t } = useTranslation(); // Variable 't' is now used below
+  const { t } = useTranslation(); 
   const { data: salon, isLoading, mutate } = useMySalon();
-  
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -40,7 +43,7 @@ const SalonProfilePage = () => {
         description: salon.description || "",
         address: salon.address || "",
         city: salon.city || "",
-        phone: salon.phone || "",
+        phone: salon.phone || "", // 🚀 Pre-populates the input from the DB
         currency: salon.currency || "XAF",
         photos: salon.photos || [],
       });
@@ -48,7 +51,11 @@ const SalonProfilePage = () => {
   }, [salon]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // 🚀 FIXED: Ensure the phone state is fully updated on keystroke
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
   const handleFileChange = async (e) => {
@@ -84,14 +91,30 @@ const SalonProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.phone.trim()) {
+      return toast.error("Phone number is required");
+    }
+
     setLoading(true);
     try {
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        address: formData.address,
+        city: formData.city,
+        phone: formData.phone.trim(), // 🚀 Explicitly send the phone number
+        currency: formData.currency,
+        photos: formData.photos
+      };
+
       if (salon) {
-        await updateMySalon(salon._id, formData);
+        await updateMySalon(salon._id, payload);
         toast.success(t("salonprofile.updatedSuccess"));
+        navigate("/salon-owner/dashboard");
       } else {
-        await createSalon(formData);
+        await createSalon(payload);
         toast.success(t("salonprofile.createdSuccess"));
+           navigate("/salon-owner/dashboard");
       }
       mutate();
     } catch (err) {
@@ -104,7 +127,7 @@ const SalonProfilePage = () => {
   if (isLoading) return <div className="flex justify-center items-center h-screen bg-[#F5F5F7]"><FaSpinner className="animate-spin text-4xl text-primary-purple" /></div>;
 
   return (
-    <div className="p-6 md:p-12 max-w-5xl mx-auto space-y-10">
+    <div className="p-6 md:p-12 max-w-5xl mx-auto space-y-10 animate-in fade-in duration-500">
       <header className="text-center lg:text-left">
         <h1 className="text-4xl font-black tracking-tighter text-[#1D1D1F]">
           {salon ? t("salonprofile.editTitle") : t("salonprofile.createTitle")}
@@ -125,38 +148,48 @@ const SalonProfilePage = () => {
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Local Currency</label>
               <select name="currency" value={formData.currency} onChange={handleChange} className="w-full p-5 bg-[#F5F5F7] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary-purple font-bold">
                 <option value="XOF">XOF (Benin)</option>
-<option value="XOF">XOF (Burkina Faso)</option>
-<option value="XAF">XAF (Cameroon)</option>
-<option value="XAF">XAF (Congo Brazzaville)</option>
-<option value="CDF">CDF (Congo DRC)</option>
-<option value="XOF">XOF (Cote D'Ivoire)</option>
-<option value="XAF">XAF (Gabon)</option>
-<option value="GNF">GNF (Guinea Conakry)</option>
-<option value="INR">INR (India)</option>
-<option value="IDR">IDR (Indonesia)</option>
-<option value="KES">KES (Kenya)</option>
-<option value="MYR">MYR (Malaysia)</option>
-<option value="XOF">XOF (Mali)</option>
-<option value="XOF">XOF (Niger)</option>
-<option value="NGN">NGN (Nigeria)</option>
-<option value="PHP">PHP (Philippines)</option>
-<option value="RWF">RWF (Rwanda)</option>
-<option value="XOF">XOF (Senegal)</option>
-<option value="KRW">KRW (South Korea)</option>
-<option value="TZS">TZS (Tanzania)</option>
-<option value="THB">THB (Thailand)</option>
-<option value="XOF">XOF (Togo)</option>
-<option value="UGX">UGX (Uganda)</option>
-<option value="AED">AED (United Arab Emirates)</option>
-<option value="ZMW">ZMW (Zambia)</option>
-<option value="USD">USD (Dollar)</option>
+                <option value="XOF">XOF (Burkina Faso)</option>
+                <option value="XAF">XAF (Cameroon)</option>
+                <option value="XAF">XAF (Congo Brazzaville)</option>
+                <option value="CDF">CDF (Congo DRC)</option>
+                <option value="XOF">XOF (Cote D'Ivoire)</option>
+                <option value="XAF">XAF (Gabon)</option>
+                <option value="GNF">GNF (Guinea Conakry)</option>
+                <option value="INR">INR (India)</option>
+                <option value="IDR">IDR (Indonesia)</option>
+                <option value="KES">KES (Kenya)</option>
+                <option value="MYR">MYR (Malaysia)</option>
+                <option value="XOF">XOF (Mali)</option>
+                <option value="XOF">XOF (Niger)</option>
+                <option value="NGN">NGN (Nigeria)</option>
+                <option value="PHP">PHP (Philippines)</option>
+                <option value="RWF">RWF (Rwanda)</option>
+                <option value="XOF">XOF (Senegal)</option>
+                <option value="KRW">KRW (South Korea)</option>
+                <option value="TZS">TZS (Tanzania)</option>
+                <option value="THB">THB (Thailand)</option>
+                <option value="XOF">XOF (Togo)</option>
+                <option value="UGX">UGX (Uganda)</option>
+                <option value="AED">AED (United Arab Emirates)</option>
+                <option value="ZMW">ZMW (Zambia)</option>
+                <option value="USD">USD (Dollar)</option>
               </select>
             </div>
           </div>
+          
+          {/* 🚀 FIXED: Bound value and handler properly */}
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">{t("salonprofile.phone")}</label>
-            <input name="phone" value={formData.phone} onChange={handleChange} required className="w-full p-5 bg-[#F5F5F7] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary-purple font-bold text-gray-800 transition-all" />
+            <input 
+              name="phone" 
+              type="tel"
+              value={formData.phone} 
+              onChange={handleChange} 
+              required 
+              className="w-full p-5 bg-[#F5F5F7] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary-purple font-bold text-gray-800 transition-all" 
+            />
           </div>
+
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">{t("salonprofile.description")}</label>
             <textarea name="description" value={formData.description} onChange={handleChange} rows={3} className="w-full p-5 bg-[#F5F5F7] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary-purple font-medium text-gray-700 resize-none" />

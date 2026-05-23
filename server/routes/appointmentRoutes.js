@@ -17,9 +17,9 @@ router.route("/").post(optionalProtect, createAppointment);
 router.route('/myappointments').get(protect, getMyApointments);
 
 // Route for a salon owner to get all appointments for their salon
-router.route('/salon/:salonId').get(protect, requireActiveSubscription, getSalonAppointments);
+router.route('/salon/:salonId').get(protect, getSalonAppointments);
 
 // Route for a salon owner to update the status of an appointment
-router.route('/:id/status').put(protect, requireActiveSubscription, updateAppointmentStatus);
+router.route('/:id/status').put(protect,  updateAppointmentStatus);
 
 module.exports = router;

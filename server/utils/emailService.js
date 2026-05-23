@@ -1,9 +1,19 @@
 const nodemailer = require("nodemailer");
 
-const sendVerificationEmail = async (email, link) => {
+const sendVerificationEmail = async (
+  email,
+  link,
+  {
+    subject = "Verify your email address",
+    title = "Email Verification",
+    message = "Click below to verify your account:",
+    buttonText = "Verify Email",
+  } = {}
+) => {
   if (process.env.NODE_ENV === "development") {
-    console.log(`DEV MODE: Verification email to ${email}`);
-    console.log(`Click this link to verify: ${link}`);
+    console.log(`DEV MODE: Email to ${email}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Click this link: ${link}`);
     return;
   }
 
@@ -15,12 +25,12 @@ const sendVerificationEmail = async (email, link) => {
   const mailOptions = {
     from: `"Beauty Hub" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Verify your email address",
+    subject,
     html: `
-      <h2>Email Verification</h2>
-      <p>Click below to verify your account:</p>
+      <h2>${title}</h2>
+      <p>${message}</p>
       <a href="${link}" style="background:#000;color:#fff;padding:10px 15px;border-radius:5px;text-decoration:none;">
-         Verify Email
+         ${buttonText}
       </a>
       <p>If button doesn't work, copy and paste this URL:</p>
       <p>${link}</p>

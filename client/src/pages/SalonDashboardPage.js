@@ -1,25 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaCalendarPlus, FaRegComments, FaRegStar, FaSpinner, FaPlus } from "react-icons/fa";
+import { 
+  FaCalendarPlus, FaRegComments, FaRegStar, FaSpinner, FaPlus, 
+  FaWallet, FaStore, FaConciergeBell, FaCalendarAlt, FaArrowRight, FaCopy, FaCheck 
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { useActiveSubscription, useMySalon, useSalonAppointments } from "../api/swr";
-import AlertBox from "../components/AlertBox";
+import { useMySalon, useSalonAppointments } from "../api/swr";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 const SalonDashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-
-  const { data: subscriptionData, isLoading: loadingSubscription } = useActiveSubscription(user?._id);
-  const hasActiveSubscription = !!subscriptionData?.data;
-
   const { data: salonData, isLoading: loadingSalon, error: salonError } = useMySalon();
-
   const { data: appointments = [], isLoading: loadingAppointments } = useSalonAppointments(salonData?._id);
 
-  const loading = loadingSubscription || loadingSalon || loadingAppointments;
+  const [copied, setCopied] = useState(false);
+
+  const loading = loadingSalon || loadingAppointments;
   const needsToCreateProfile = !salonData || salonError?.status === 404;
 
   const todayAppointments = useMemo(() =>
@@ -31,6 +31,87 @@ const SalonDashboardPage = () => {
   const pendingRequests = useMemo(() => 
     appointments?.filter((a) => a.status === "Pending") || [], [appointments]
   );
+
+  // 🚀 QUICK LINK CARDS CONFIGURATION
+  const quickLinks = [
+    { 
+      title: "Wallet & Top-up", 
+      desc: "Check balance and add money", 
+      path: "/salon-owner/billing", 
+      icon: <FaWallet size={20} />, 
+      color: "bg-purple-50 text-purple-600 border-purple-100" 
+    },
+    { 
+      title: "My Services", 
+      desc: "Update your pricing and duration", 
+      path: "/salon-owner/services", 
+      icon: <FaConciergeBell size={20} />, 
+      color: "bg-pink-50 text-pink-600 border-pink-100" 
+    },
+    { 
+      title: "Edit Profile", 
+      desc: "Change cover photo, phone, address", 
+      path: "/salon-owner/profile", 
+      icon: <FaStore size={20} />, 
+      color: "bg-emerald-50 text-emerald-600 border-emerald-100" 
+    },
+    { 
+      title: "Appointments", 
+      desc: "View incoming client bookings", 
+      path: "/salon-owner/appointments", 
+      icon: <FaCalendarAlt size={20} />, 
+      color: "bg-blue-50 text-blue-600 border-blue-100" 
+    }
+  ];
+
+  // 🚀 SMART GUIDED ASSISTANT SYSTEM
+  const getAssistantGuide = () => {
+    const balance = user?.walletBalance || 0;
+    const hasNoServices = salonData && (!salonData.services || salonData.services.length === 0);
+
+    if (balance < 0.50) {
+      return {
+        title: "Assistant: Top up required!",
+        text: `Your wallet balance is current $${balance.toFixed(2)}. To ensure your salon remains active, please add at least $5.00 to your wallet.`,
+        actionText: "Deposit Funds",
+        isShare: false,
+        path: "/salon-owner/billing",
+        badge: "Urgent Action Required"
+      };
+    }
+    if (hasNoServices) {
+      return {
+        title: "Assistant: Add your services!",
+        text: "Your profile is funded but you haven't added any services yet. Add at least one service so clients can see what you do and book you.",
+        actionText: "Add First Service",
+        isShare: false,
+        path: "/salon-owner/services",
+        badge: "Setup Step 3"
+      };
+    }
+    return {
+      title: "Assistant: Your account is fully active!",
+      text: "Everything is set up! Here is your public salon link. Copy it and share it with your clients on WhatsApp or social media to start receiving bookings.",
+      actionText: "Copy Link",
+      isShare: true, // 🚀 FLAG FOR COPY ACTION
+      path: `${window.location.origin}/salon/${salonData?.slug}`,
+      badge: "Optimization & Marketing"
+    };
+  };
+
+  const guide = getAssistantGuide();
+
+  // 🚀 COPY LINK TO CLIPBOARD FUNCTION
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(guide.path);
+      setCopied(true);
+      toast.success("Salon link copied to clipboard! 📋");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error("Failed to copy link.");
+    }
+  };
 
   if (loading) return (
     <div className="flex justify-center items-center h-64">
@@ -52,30 +133,89 @@ const SalonDashboardPage = () => {
   }
 
   return (
-    <div className="p-6 md:p-10 space-y-10">
+    <div className="p-6 md:p-10 space-y-10 animate-in fade-in duration-700">
+      
+      {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-primary-purple to-purple-600 text-white p-8 rounded-3xl shadow-lg">
         <h1 className="text-4xl font-semibold">{t("salondashboard.welcomeBack", { name: salonData?.name || user?.name })}</h1>
         <p className="opacity-90 mt-2 text-lg">{t("salondashboard.summary")}</p>
       </div>
 
-      {!hasActiveSubscription && (
-        <AlertBox title={t("salondashboard.noSubscription")} message={t("salondashboard.subscribeToUnlock")} type="warning" actionLabel={t("salondashboard.choosePlan")} actionLink="/subscriptions" />
-      )}
+      {/* 🚀 QUICK ACTION CARDS MOVED TO THE TOP (Requirement 3) */}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {quickLinks.map((link, i) => (
+            <Link 
+              key={i} 
+              to={link.path} 
+              className="group bg-white p-6 rounded-[2rem] border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all flex flex-col justify-between h-48 shadow-sm"
+            >
+              <div className="flex justify-between items-start">
+                <div className={`p-4 rounded-2xl border ${link.color}`}>
+                  {link.icon}
+                </div>
+                <FaArrowRight className="text-gray-300 group-hover:text-primary-purple group-hover:translate-x-1 transition-all" />
+              </div>
+              <div>
+                <h4 className="font-bold text-lg text-gray-900 mb-1">{link.title}</h4>
+                <p className="text-gray-400 text-xs font-medium leading-normal">{link.desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
 
+      {/* 🚀 THE SMART GUIDED ASSISTANT CARD */}
+      <div className="bg-white border-2 border-purple-50 rounded-[2.5rem] p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-3 w-full md:w-2/3">
+          <span className="bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full">
+            {guide.badge}
+          </span>
+          <h2 className="text-2xl font-black text-gray-900 tracking-tight">{guide.title}</h2>
+          <p className="text-gray-500 text-base leading-relaxed font-medium">{guide.text}</p>
+          
+          {/* 🚀 DISPLAYING THE RAW PUBLIC LINK ON SCREEN */}
+          {guide.isShare && (
+            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-sm font-bold text-primary-purple select-all mt-4 w-full break-all">
+                {guide.path}
+            </div>
+          )}
+        </div>
+        
+        {/* 🚀 DYNAMIC ACTION BUTTON */}
+        {guide.isShare ? (
+          <button 
+            onClick={handleCopyLink}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap ml-auto md:ml-0"
+          >
+            {copied ? <FaCheck /> : <FaCopy />}
+            {copied ? "Copied!" : "Copy Link"}
+          </button>
+        ) : (
+          <Link to={guide.path} className="ml-auto md:ml-0">
+            <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all whitespace-nowrap">
+              {guide.actionText} &rarr;
+            </button>
+          </Link>
+        )}
+      </div>
+
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: t("salondashboard.todaysBookings"), value: todayAppointments.length },
           { label: t("salondashboard.pendingRequests"), value: pendingRequests.length },
-          { label: t("salondashboard.totalEarnings"), value: "$——" },
+          { label: "Wallet Balance", value: `$ ${user?.walletBalance?.toFixed(2) || "0.00"}` },
           { label: t("salondashboard.newReviews"), value: salonData?.reviews?.length || 0 },
         ].map((stat, i) => (
           <div key={i} className="backdrop-blur-lg bg-white/70 hover:bg-white/100 transition-all border border-gray-200/50 rounded-3xl p-6 shadow-sm hover:shadow-xl">
-            <p className="text-gray-500 mb-2">{stat.label}</p>
-            <p className="text-4xl font-bold text-gray-800">{stat.value}</p>
+            <p className="text-gray-500 mb-2 font-semibold text-sm">{stat.label}</p>
+            <p className="text-4xl font-black text-gray-800 tracking-tight">{stat.value}</p>
           </div>
         ))}
       </div>
 
+      {/* Calendar Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 backdrop-blur-xl bg-white/70 rounded-3xl shadow-md p-8 border border-gray-200/40">
           <div className="flex justify-between mb-6">

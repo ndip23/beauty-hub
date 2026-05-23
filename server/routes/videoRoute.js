@@ -15,7 +15,7 @@ const {
   getMyVideos,
   deleteMyVideo,
 } = require("../controllers/videoController");
-const interactionLimiter = require("../middleware/rateLimiter")
+const { interactionLimiter } = require("../middleware/rateLimiter");
 const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 

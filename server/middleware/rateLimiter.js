@@ -9,4 +9,13 @@ const interactionLimiter = rateLimit({
   message: "Too many actions, slow down",
 });
 
-module.exports = interactionLimiter
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many auth attempts, please try again later.",
+});
+
+module.exports = {
+  interactionLimiter,
+  authLimiter,
+};

@@ -150,7 +150,7 @@ const getSalons = asyncHandler(async (req, res) => {
   let salons = [];
   let totalCount = 0;
 
-  // 1. GLOBAL FILTER
+  // 1. GLOBAL FILTER (Only verified salons initially)
   const baseQuery = { isVerified: true };
 
   // 🌍 LOCALIZATION (international prefix + common local formats)
@@ -187,8 +187,6 @@ const getSalons = asyncHandler(async (req, res) => {
   }
 
   // 🎲 SHUFFLE LOGIC: Create a seed based on the current date (e.g., "2024-04-13")
-  // This ensures the random order stays stable for the user for the whole day
-  // so Page 2 doesn't show Page 1 salons.
   const shuffleSeed = new Date().toISOString().split('T')[0];
 
   // ==================== NEAR ME ====================
@@ -212,19 +210,63 @@ const getSalons = asyncHandler(async (req, res) => {
           query: matchQuery 
         }
       },
+      // Join with Users collection to check owner's balance
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "ownerDetails"
+        }
+      },
+      { $unwind: { path: "$ownerDetails", preserveNullAndEmptyArrays: true } },
+      
+      // 🚀 THE HIDE-EMPTY-WALLET FILTER (Bypassed if admin verified)
+      {
+        $match: {
+          $or: [
+            { "ownerDetails.isVerified": true },
+            { "ownerDetails.walletBalance": { $gte: 0.50 } }
+          ]
+        }
+      },
       {
         $project: {
           name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
           averageRating: 1, isVerified: 1, currency: 1,
           distance: { $round: [{ $divide: ["$distance", 1000] }, 1] },
+          // Map owner details securely for card checks
+          owner: {
+            _id: "$ownerDetails._id",
+            walletBalance: { $ifNull: ["$ownerDetails.walletBalance", 0] },
+            isVerified: { $ifNull: ["$ownerDetails.isVerified", false] }
+          },
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
         }
       },
-      { $sort: { distance: 1 } }, // Distance is naturally a good "shuffle" for location
+      { $sort: { distance: 1 } }, 
       { $skip: pageSize * (page - 1) },
       { $limit: pageSize }
     ]);
-    totalCount = await Salon.countDocuments(matchQuery);
+
+    // Count must match the filtered results exactly
+    const matchedDocs = await Salon.aggregate([
+      {
+        $geoNear: {
+          near: { type: "Point", coordinates: [lng, lat] },
+          distanceField: "distance",
+          maxDistance: MAX_DISTANCE_METERS,
+          spherical: true,
+          query: matchQuery 
+        }
+      },
+      { $lookup: { from: "users", localField: "owner", foreignField: "_id", as: "ownerDetails" } },
+      { $unwind: "$ownerDetails" },
+      { $match: { $or: [{ "ownerDetails.isVerified": true }, { "ownerDetails.walletBalance": { $gte: 0.50 } }] } },
+      { $count: "count" }
+    ]);
+    totalCount = matchedDocs[0]?.count || 0;
+
   } 
   // ==================== NORMAL SEARCH & SHOW ALL (With Shuffle) ====================
   else {
@@ -238,21 +280,54 @@ const getSalons = asyncHandler(async (req, res) => {
 
     salons = await Salon.aggregate([
       { $match: matchQuery },
-      // 🚀 THE SHUFFLE STEP:
-      // We add a field that combines the unique ID with our daily seed, then sort by it.
       { $addFields: { "shuffleOrder": { $concat: ["$name", shuffleSeed] } } },
       { $sort: { "shuffleOrder": 1 } }, 
+      // Join with Users collection to check owner's balance
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "ownerDetails"
+        }
+      },
+      { $unwind: { path: "$ownerDetails", preserveNullAndEmptyArrays: true } },
+      
+      // 🚀 THE HIDE-EMPTY-WALLET FILTER (Bypassed if admin verified)
+      {
+        $match: {
+          $or: [
+            { "ownerDetails.isVerified": true },
+            { "ownerDetails.walletBalance": { $gte: 0.50 } }
+          ]
+        }
+      },
       {
         $project: {
           name: 1, slug: 1, city: 1, address: 1, photos: 1, phone: 1,
           averageRating: 1, isVerified: 1, currency: 1,
+          // Map owner details securely for card checks
+          owner: {
+            _id: "$ownerDetails._id",
+            walletBalance: { $ifNull: ["$ownerDetails.walletBalance", 0] },
+            isVerified: { $ifNull: ["$ownerDetails.isVerified", false] }
+          },
           minPrice: { $cond: { if: { $gt: [{ $size: "$services" }, 0] }, then: { $min: "$services.price" }, else: 2500 } }
         }
       },
       { $skip: pageSize * (page - 1) },
       { $limit: pageSize }
     ]);
-    totalCount = await Salon.countDocuments(matchQuery);
+
+    // Count must match the filtered results exactly
+    const matchedDocs = await Salon.aggregate([
+      { $match: matchQuery },
+      { $lookup: { from: "users", localField: "owner", foreignField: "_id", as: "ownerDetails" } },
+      { $unwind: "$ownerDetails" },
+      { $match: { $or: [{ "ownerDetails.isVerified": true }, { "ownerDetails.walletBalance": { $gte: 0.50 } }] } },
+      { $count: "count" }
+    ]);
+    totalCount = matchedDocs[0]?.count || 0;
   }
 
   res.json({
@@ -838,8 +913,15 @@ const getMySalon = asyncHandler(async (req, res) => {
 
 const getSalonBySlug = asyncHandler(async (req, res) => {
   const salon = await Salon.findOne({ slug: req.params.slug })
-    .populate("owner", "name email")
-    .populate("reviews");
+    // 🚀 THE FIX: Populate the owner and specifically select their walletBalance and isVerified
+    .populate({
+      path: "owner",
+      select: "name email phone role walletBalance isVerified" 
+    })
+    .populate({
+      path: "reviews",
+      populate: { path: "user", select: "name" }
+    });
 
   if (!salon) {
     return res.status(404).json({ message: "Salon not found" });
@@ -847,6 +929,7 @@ const getSalonBySlug = asyncHandler(async (req, res) => {
 
   res.json({ success: true, data: salon });
 });
+
 
 
 
