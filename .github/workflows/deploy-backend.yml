@@ -1,4 +1,4 @@
-name: Deploy Backend to AWS
+name: Deploy BeautyHub Backend
 
 on:
   push:
@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: cd server && yarn install
-      - name: Create deployment package
+        run: cd server && yarn install --ignore-engines
+      - name: Zip code
         run: cd server && zip -r deploy.zip . -x "node_modules/*"
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
@@ -24,7 +24,7 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: beautyhub-api
-          environment_name: beautyhub-api-env
-          region: ${{ secrets.AWS_REGION }}
-          version_label: github-${{ github.sha }}
+          environment_name: beautyhub-prod
+          region: eu-north-1
+          version_label: ${{ github.sha }}
           deployment_package: server/deploy.zip
