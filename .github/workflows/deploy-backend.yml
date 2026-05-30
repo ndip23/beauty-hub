@@ -26,5 +26,5 @@ jobs:
           application_name: beautyhub-api
           environment_name: beautyhub-prod
           region: eu-north-1
-          version_label: ${{ github.sha }}
+          version_label: deploy-${{ github.run_number }}-${{ github.sha }}
           deployment_package: server/deploy.zip
