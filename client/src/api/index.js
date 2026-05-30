@@ -4,7 +4,7 @@ import axios from "axios";
 const isProduction = window.location.hostname !== "localhost";
 
 const API_BASE_URL = isProduction 
-  ? "https://beauty-heaven-api.vercel.app/"  
+  ? "http://Beautyhub-prod-env.eba-se9hjy5y.eu-north-1.elasticbeanstalk.com"  
   : "http://localhost:8000";                
 
 export const API = axios.create({ baseURL: API_BASE_URL });
