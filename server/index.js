@@ -130,7 +130,12 @@ app.use(compression());
 
 // 2. CORS
 app.use(cors({
-  origin: ["https://www.mybeautyheaven.site", "http://localhost:3000", "https://mybeautyheaven.site"],
+  origin: [
+    "https://www.mybeautyheaven.site",
+    "https://mybeautyheaven.site",
+    "https://beauty-hub-coral.vercel.app",
+    "http://localhost:3000",
+  ],
   credentials: true
 }));
 
