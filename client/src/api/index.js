@@ -8,6 +8,7 @@ const API_BASE_URL = isProduction
   : "http://localhost:8000";                
 
 export const API = axios.create({ baseURL: API_BASE_URL });
+export const BASE_API_URL = API_BASE_URL;
 
 export const apiClient = API; 
 
@@ -152,3 +153,5 @@ export const getMyTransactions = (page = 1) =>
   API.get(`/api/transactions/my-transactions?page=${page}`);
 export const getAllTransactionsForAdmin = (page = 1) => 
   API.get(`/api/admin/transactions?page=${page}`);
+export const downloadTransactionDocument = (transactionId, type = "receipt") =>
+  API.get(`/api/transactions/${transactionId}/${type}`, { responseType: "blob" });

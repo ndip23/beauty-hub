@@ -12,7 +12,7 @@ const paymentSchema = new mongoose.Schema(
     // The type of item this payment is for
     entity: {
       type: String,
-      enum: ["Subscription"], // extend this later (e.g., "Order", "Invoice", etc.)
+      enum: ["Subscription", "Wallet_TopUp", "Invoice", "Order"],
       required: true,
     },
 
@@ -32,6 +32,11 @@ const paymentSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+    amountUsd: {
+      type: Number,
+      min: 0,
+      default: 0,
     },
 
     currency: {

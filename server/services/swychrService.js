@@ -41,7 +41,7 @@ const createPaymentLink = async (token, payload) => {
   return data;
 };
 const getPaymentStatus = async (token, transactionId) => {
-  const { data } = await api.post('/payment_link_status', { transaction_id: transactionId }, {
+  const { data } = await payinApi.post('/payment_link_status', { transaction_id: transactionId }, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;
