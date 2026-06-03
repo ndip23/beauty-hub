@@ -116,7 +116,7 @@ const getMySubscriptionHistory = asyncHandler(async (req, res) => {
 
   const skip = (page - 1) * limit;
 
-  const total = await Subscription.countDocuments({ user: userId });
+  const total = await Subscription.countDocuments({ user: user?._id });
 
   const subscriptions = await Subscription.find({
     user: user?._id,

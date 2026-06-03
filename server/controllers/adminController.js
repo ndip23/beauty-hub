@@ -5,6 +5,7 @@ const Salon = require("../models/salonModel");
 const Appointment = require("../models/appointmentModel");
 const Payment = require("../models/paymentModel");
 const SubscriptionType = require("../models/subscriptionTypeModel");
+const Transaction = require("../models/transactionModel");
 const sendEmail = require('../utils/emailService');
 const bcrypt = require("bcryptjs");
 /**

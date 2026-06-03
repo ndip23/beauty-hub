@@ -76,16 +76,29 @@ const mongoose = require('mongoose');
  */
 
 const transactionSchema = new mongoose.Schema({
-  transactionId: { type: String, required: true, unique: true },
+  transactionId: {
+    type: String,
+    required: true,
+    unique: true,
+    default: () => `TXN-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+  },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   plan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionType' },
+  paymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
+  appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' },
+  type: {
+    type: String,
+    enum: ['DEPOSIT', 'BOOKING_FEE', 'SUBSCRIPTION', 'PAYMENT', 'REFUND', 'ADJUSTMENT'],
+    default: 'PAYMENT',
+  },
   amount: { type: Number, required: true },
     currency: {
     type: String,
     required: true,
     default: 'USD'
   },
-  status: { type: String, enum: ['PENDING', 'LINK_CREATED', 'PAID', 'FAILED', 'CANCELLED'], default: 'PENDING' },
+  balanceAfter: Number,
+  status: { type: String, enum: ['PENDING', 'LINK_CREATED', 'PAID', 'COMPLETED', 'FAILED', 'CANCELLED'], default: 'PENDING' },
   paymentUrl: String,
   customerName: String,
   customerEmail: String,
@@ -93,6 +106,8 @@ const transactionSchema = new mongoose.Schema({
   countryCode: { type: String, default: 'US' },
   description: String,
   gateway: { type: String, default: 'swychr' },
+  receiptNumber: String,
+  invoiceNumber: String,
 
   // ← NEW: User-filled salon details
   salonDetails: {
@@ -104,5 +119,12 @@ const transactionSchema = new mongoose.Schema({
     openingHours: mongoose.Schema.Types.Mixed,
   },
 }, { timestamps: true });
+
+transactionSchema.pre('validate', function (next) {
+  const shortId = this._id ? this._id.toString().slice(-8).toUpperCase() : Date.now();
+  if (!this.receiptNumber) this.receiptNumber = `RCPT-${shortId}`;
+  if (!this.invoiceNumber) this.invoiceNumber = `INV-${shortId}`;
+  next();
+});
 
 module.exports = mongoose.model('Transaction', transactionSchema);

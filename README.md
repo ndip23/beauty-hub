@@ -19,6 +19,12 @@ BeautyHeaven is a full-stack platform for discovering salons and managing salon 
   - Polling: `GET /api/payments/:id/check-payment-status`
   - Redirect: `GET /api/payments/swychr/webhook` → frontend `/payment`
 
+- **Receipts + Invoices**  
+  Completed payment records are stored as transactions and can generate PDF documents:
+  - Receipt PDF: `GET /api/transactions/:id/receipt`
+  - Invoice PDF: `GET /api/transactions/:id/invoice`
+  - QR verification: `GET /api/transactions/:id/verify`
+
 - **Supported currency (temporary)**  
   Payments currently accept **XAF only**. Plans must have `currency: "XAF"` until
   conversion is reintroduced.
@@ -55,6 +61,7 @@ BeautyHeaven is a full-stack platform for discovering salons and managing salon 
 - `/salon-owner/reviews`
 - `/salon-owner/analytics`
 - `/salon-owner/settings`
+- `/salon-owner/receipts`
 
 ### Admin Dashboard
 

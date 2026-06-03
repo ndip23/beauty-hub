@@ -19,6 +19,7 @@ import {
   FaPlayCircle,
   FaProductHunt,
   FaWallet,
+  FaReceipt,
   FaSpinner
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
@@ -56,6 +57,7 @@ const SalonOwnerLayout = ({ children }) => {
 
   const isBillingPage = location.pathname.includes("billing");
   const isPaymentPage = location.pathname.includes("pay"); 
+  const isReceiptsPage = location.pathname.includes("receipts");
   const isProfilePage = location.pathname.includes("profile");
   const isServicesPage = location.pathname.includes("services");
 
@@ -129,6 +131,7 @@ const SalonOwnerLayout = ({ children }) => {
           <SidebarLink to="/salon-owner/products" icon={FaProductHunt}>{t("products")}</SidebarLink>
           
           <SidebarLink to="/salon-owner/billing" icon={FaCreditCard}>{t("ownerSidebar.billing")}</SidebarLink>
+          <SidebarLink to="/salon-owner/receipts" icon={FaReceipt}>Receipts</SidebarLink>
           
           <SidebarLink to="/salon-owner/messages" icon={FaCommentDots}>{t("ownerSidebar.messages")}</SidebarLink>
           <SidebarLink to="/salon-owner/reviews" icon={FaStar}>{t("ownerSidebar.reviews")}</SidebarLink>
@@ -155,7 +158,7 @@ const SalonOwnerLayout = ({ children }) => {
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto p-4 md:p-10 relative bg-[#FAF9F6]">
         {/* 🚨 STICKY LOW BALANCE ALERT BANNER (Doesn't block dashboard, just alerts) */}
-        {hasNoFunds && !isBillingPage && !isPaymentPage && !isProfilePage && !isServicesPage && (
+        {hasNoFunds && !isBillingPage && !isPaymentPage && !isReceiptsPage && !isProfilePage && !isServicesPage && (
           <div className="bg-red-600 text-white py-3 px-6 text-center text-xs font-black uppercase tracking-[0.2em] shadow-lg sticky top-0 z-50 flex items-center justify-center gap-2 animate-pulse">
             ⚠️ Low Wallet Balance ($ {currentBalance.toFixed(2)}) &bull; 
             <Link to="/salon-owner/billing" className="underline ml-1">Top up now to avoid listing deactivation</Link>
