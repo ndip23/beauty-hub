@@ -151,4 +151,4 @@ export const getSalonProducts = (salonId) =>
 export const getMyTransactions = (page = 1) => 
   API.get(`/api/transactions/my-transactions?page=${page}`);
 export const getAllTransactionsForAdmin = (page = 1) => 
-  API.get(`/api/admin/transactions?page=${page}`);
+  API.get(`/api/admin/transactions?page=${page}`);// FORCE REDEPLOY - UPDATED API URL
