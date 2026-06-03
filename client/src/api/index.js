@@ -4,7 +4,7 @@ import axios from "axios";
 const isProduction = window.location.hostname !== "localhost";
 
 const API_BASE_URL = isProduction 
-  ? "http://Beautyhub-prod-env.eba-se9hjy5y.eu-north-1.elasticbeanstalk.com"  
+  ? "https://Beautyhub-prod-env.eba-se9hjy5y.eu-north-1.elasticbeanstalk.com"  
   : "http://localhost:8000";                
 
 export const API = axios.create({ baseURL: API_BASE_URL });
@@ -151,4 +151,4 @@ export const getSalonProducts = (salonId) =>
 export const getMyTransactions = (page = 1) => 
   API.get(`/api/transactions/my-transactions?page=${page}`);
 export const getAllTransactionsForAdmin = (page = 1) => 
-  API.get(`/api/admin/transactions?page=${page}`);// FORCE REDEPLOY - UPDATED API URL
+  API.get(`/api/admin/transactions?page=${page}`);
