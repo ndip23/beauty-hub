@@ -4,7 +4,7 @@ import axios from "axios";
 const isProduction = window.location.hostname !== "localhost";
 
 const API_BASE_URL = isProduction 
-  ? "https://Beautyhub-prod-env.eba-se9hjy5y.eu-north-1.elasticbeanstalk.com"  
+  ? "https://d1zp7fh45pmgxy.cloudfront.net"  
   : "http://localhost:8000";                
 
 export const API = axios.create({ baseURL: API_BASE_URL });
