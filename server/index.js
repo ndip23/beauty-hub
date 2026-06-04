@@ -35,14 +35,7 @@ app.use(compression());
 
 // 2. CORS - Updated to include bookerbeauty.com
 app.use(cors({
-  origin: [
-    "https://bookerbeauty.com",
-    "https://www.bookerbeauty.com",
-    "https://www.mybeautyheaven.site",
-    "https://mybeautyheaven.site",
-    "https://beauty-hub-coral.vercel.app",
-    "http://localhost:3000",
-  ],
+  origin: ["https://bookerbeauty.com", "https://www.bookerbeauty.com", "https://www.mybeautyheaven.site", "http://localhost:3000", "https://mybeautyheaven.site"],
   credentials: true
 }));
 
