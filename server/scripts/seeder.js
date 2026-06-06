@@ -26,8 +26,8 @@ const mongoose = require("mongoose");
       const password = await bcrypt.hash("123456", 10);
 
       admin = await User.create({
-        name: "BeautyHeaven Admin",
-        email: "admin@beautyheaven.com",
+        name: "Beautyhub Admin",
+        email: "admin@Beautyhub.com",
         phone: "000",
         password,
         role: "admin",

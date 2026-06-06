@@ -1,0 +1,30 @@
+name: Deploy BeautyHub Backend
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'server/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: cd server && yarn install --ignore-engines
+      - name: Zip code
+        run: cd server && zip -r deploy.zip . -x "node_modules/*"
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: beautyhub-prod
+          environment_name: Beautyhub-prod-env
+          region: eu-north-1
+          version_label: deploy-${{ github.run_number }}-${{ github.sha }}
+          deployment_package: server/deploy.zip

@@ -6,8 +6,8 @@ const User = require("../models/userModel");
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const DEFAULT_ADMIN = {
-  name: "BeautyHeaven Admin",
-  email: "admin@beautyheaven.local",
+  name: "Beautyhub Admin",
+  email: "admin@Beautyhub.local",
   password: "Admin123!",
 };
 

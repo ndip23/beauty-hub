@@ -19,3 +19,7 @@ root.render(
     </Router>
   </React.StrictMode>
 );
+/* trigger frontend */
+/* node20 fix */
+/* no acl */
+/* trigger frontend deploy */

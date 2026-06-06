@@ -4,7 +4,8 @@ import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { 
   FaCalendarPlus, FaRegComments, FaRegStar, FaSpinner, FaPlus, 
-  FaWallet, FaStore, FaConciergeBell, FaCalendarAlt, FaArrowRight, FaCopy, FaCheck, FaTimes 
+  FaWallet, FaStore, FaConciergeBell, FaCalendarAlt, FaArrowRight, FaCopy, FaCheck, FaTimes,
+  FaProductHunt, FaCreditCard, FaReceipt, FaCommentDots, FaStar, FaChartLine, FaVideo, FaPlayCircle, FaCog
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useMySalon, useSalonAppointments } from "../api/swr";
@@ -20,9 +21,9 @@ const SalonDashboardPage = () => {
   const [copied, setCopied] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
+  const [showWalletModal, setShowWalletModal] = useState(false);
 
   const loading = loadingSalon || loadingAppointments;
-  const needsToCreateProfile = !salonData || salonError?.status === 404;
 
   const tourSteps = [
     {
@@ -84,35 +85,28 @@ const SalonDashboardPage = () => {
 
   // 🚀 QUICK LINK CARDS CONFIGURATION
   const quickLinks = [
-    { 
-      title: "Wallet & Top-up", 
-      desc: "Check balance and add money", 
-      path: "/salon-owner/billing", 
-      icon: <FaWallet size={20} />, 
-      color: "bg-purple-50 text-purple-600 border-purple-100" 
-    },
-    { 
-      title: "My Services", 
-      desc: "Update your pricing and duration", 
-      path: "/salon-owner/services", 
-      icon: <FaConciergeBell size={20} />, 
-      color: "bg-pink-50 text-pink-600 border-pink-100" 
-    },
-    { 
-      title: "Edit Profile", 
-      desc: "Change cover photo, phone, address", 
-      path: "/salon-owner/profile", 
-      icon: <FaStore size={20} />, 
-      color: "bg-emerald-50 text-emerald-600 border-emerald-100" 
-    },
-    { 
-      title: "Appointments", 
-      desc: "View incoming client bookings", 
-      path: "/salon-owner/appointments", 
-      icon: <FaCalendarAlt size={20} />, 
-      color: "bg-blue-50 text-blue-600 border-blue-100" 
-    }
+    { title: "Appointments", desc: "View incoming client bookings", path: "/salon-owner/appointments", icon: <FaCalendarAlt size={20} />, color: "bg-blue-50 text-blue-600 border-blue-100" },
+    { title: "Edit Profile", desc: "Change cover photo, phone, address", path: "/salon-owner/profile", icon: <FaStore size={20} />, color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+    { title: "My Services", desc: "Update your pricing and duration", path: "/salon-owner/services", icon: <FaConciergeBell size={20} />, color: "bg-pink-50 text-pink-600 border-pink-100" },
+    { title: "Products", desc: "Manage your salon products", path: "/salon-owner/products", icon: <FaProductHunt size={20} />, color: "bg-indigo-50 text-indigo-600 border-indigo-100" },
+    { title: "Wallet & Top-up", desc: "Check balance and add money", path: "/salon-owner/billing", icon: <FaCreditCard size={20} />, color: "bg-purple-50 text-purple-600 border-purple-100" },
+    { title: "Receipts", desc: "View your payment receipts", path: "/salon-owner/receipts", icon: <FaReceipt size={20} />, color: "bg-teal-50 text-teal-600 border-teal-100" },
+    { title: "Messages", desc: "Chat with your clients", path: "/salon-owner/messages", icon: <FaCommentDots size={20} />, color: "bg-sky-50 text-sky-600 border-sky-100" },
+    { title: "Reviews", desc: "See what customers say", path: "/salon-owner/reviews", icon: <FaStar size={20} />, color: "bg-yellow-50 text-yellow-600 border-yellow-100" },
+    { title: "Analytics", desc: "View your performance stats", path: "/salon-owner/analytics", icon: <FaChartLine size={20} />, color: "bg-rose-50 text-rose-600 border-rose-100" },
+    { title: "Post Video", desc: "Upload marketing videos", path: "/salon-owner/post-video", icon: <FaVideo size={20} />, color: "bg-orange-50 text-orange-600 border-orange-100" },
+    { title: "My Videos", desc: "Manage uploaded videos", path: "/salon-owner/my-videos", icon: <FaPlayCircle size={20} />, color: "bg-red-50 text-red-600 border-red-100" },
+    { title: "Settings", desc: "Account and platform settings", path: "/salon-owner/settings", icon: <FaCog size={20} />, color: "bg-slate-50 text-slate-600 border-slate-100" }
   ];
+
+  const handleLinkClick = (e, path) => {
+    const hasNoFunds = (user?.walletBalance === undefined || user?.walletBalance === null ? 0 : Number(user.walletBalance)) < 0.50 && !user?.isVerified;
+    if (hasNoFunds && path !== "/salon-owner/billing") {
+      e.preventDefault();
+      toast.error("Your wallet is empty. Please top up to continue.");
+      setShowWalletModal(true);
+    }
+  };
 
   // 🚀 SMART GUIDED ASSISTANT SYSTEM
   const getAssistantGuide = () => {
@@ -168,19 +162,6 @@ const SalonDashboardPage = () => {
       <FaSpinner className="animate-spin text-4xl text-primary-purple" />
     </div>
   );
-
-  if (needsToCreateProfile) {
-    return (
-      <div className="p-6 md:p-10 flex flex-col items-center justify-center min-h-[70vh] text-center">
-        <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mb-6 text-primary-purple text-3xl"><FaPlus /></div>
-        <h1 className="text-4xl font-bold tracking-tighter text-gray-900 mb-4">Ready to launch?</h1>
-        <p className="text-gray-500 text-lg max-w-md mb-10 leading-relaxed">You haven't set up your salon profile yet. Create it now to start receiving bookings.</p>
-        <Link to="/salon-owner/profile" className="bg-primary-purple text-white px-10 py-4 rounded-full font-bold text-lg hover:shadow-xl transition-all">
-          {t("salondashboard.createProfile")}
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 md:p-10 space-y-10 animate-in fade-in duration-700">
@@ -245,6 +226,7 @@ const SalonDashboardPage = () => {
             <Link 
               key={i} 
               to={link.path} 
+              onClick={(e) => handleLinkClick(e, link.path)}
               className="group bg-white p-5 rounded-[2rem] border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all flex flex-col justify-between h-44 shadow-sm"
             >
               <div className="flex justify-between items-start">
@@ -355,6 +337,35 @@ const SalonDashboardPage = () => {
           </div>
         </div>
       </div>
+
+      {/* ==================== WALLET TOP-UP MODAL ==================== */}
+      {showWalletModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl text-center animate-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-600 text-3xl">
+              <FaWallet />
+            </div>
+            <h2 className="text-2xl font-black text-gray-900 mb-4 tracking-tight">Top Up Required</h2>
+            <p className="text-gray-500 mb-8 leading-relaxed font-medium">
+              Your wallet balance is currently empty. To access this feature and keep your salon active, please add funds to your wallet.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link to="/salon-owner/billing" onClick={() => setShowWalletModal(false)}>
+                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                  Top Up Wallet Now
+                </button>
+              </Link>
+              <button 
+                onClick={() => setShowWalletModal(false)}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

@@ -11,7 +11,7 @@ const AdOfferPage = () => {
 
   // === WHATSAPP CONFIGURATION ===
   const whatsappNumber = "237687950618";
-  const customMessage = "Hello BeautyHeaven team! I saw your Skincare/Beauty business offer for $5 and I want to get more customers online. Please help me create my professional profile and start my FREE month of promotion.";
+  const customMessage = "Hello Beautyhub team! I saw your Skincare/Beauty business offer for $5 and I want to get more customers online. Please help me create my professional profile and start my FREE month of promotion.";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(customMessage)}`;
 
   return (
@@ -26,7 +26,7 @@ const AdOfferPage = () => {
           >
             <FaArrowLeft /> {t("offerPage.back")}
           </Link>
-          <span className="font-black tracking-tighter text-base text-primary-purple">BeautyHeaven</span>
+          <span className="font-black tracking-tighter text-base text-primary-purple">Beautyhub</span>
           <div className="w-8"></div>
         </div>
       </nav>
@@ -122,7 +122,7 @@ const AdOfferPage = () => {
       </main>
 
       <footer className="pb-10 text-center text-gray-400">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em]">BeautyHeaven &copy; 2024</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em]">Beautyhub &copy; 2024</p>
       </footer>
     </div>
   );

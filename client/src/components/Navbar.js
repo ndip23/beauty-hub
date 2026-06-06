@@ -46,7 +46,7 @@ const Navbar = ({ isLoggedIn, user, handleLogout }) => {
         {/* 1. Logo (Shrinkable) */}
         <Link to="/" onClick={closeDrawer} className="text-2xl md:text-3xl font-black tracking-tighter shrink-0">
           <span className="bg-gradient-to-r from-primary-pink to-primary-purple text-transparent bg-clip-text">
-            BeautyHeaven
+            Beautyhub
           </span>
         </Link>
 

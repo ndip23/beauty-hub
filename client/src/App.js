@@ -27,6 +27,7 @@ import AdminSalons from "./pages/AdminSalons";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminUsers from "./pages/AdminUsers";
 import BeautyTipsPage from "./pages/BeautyTipsPage";
+import ReceiptsPage from "./pages/ReceiptsPage";
 import BecomeSalonOwnerPage from "./pages/BecomeSalonOwnerPage";
 import ComparePage from "./pages/ComparePage";
 import ContactPage from "./pages/ContactPage";
@@ -200,6 +201,7 @@ function App() {
                   <Route path="my-videos" element={<MyVideos />} />
                    <Route path="billing" element={<Subscriptions />} /> 
                    <Route path="pay" element={<PaymentPage />} /> 
+                   <Route path="receipts" element={<ReceiptsPage />} />
                 </Routes>
               </SalonOwnerLayout>
             } />

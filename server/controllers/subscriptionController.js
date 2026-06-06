@@ -66,12 +66,12 @@ const subscribe = asyncHandler(async (req, res) => {
     const payload = {
       country_code: countryCode,
       name: user?.name || "Customer",
-      email: user?.email || "customer@beautyheaven.site",
+      email: user?.email || "customer@Beautyhub.site",
       mobile: user?.phone || "0000000000",
       amount: finalAmount,
       currency: currency,
       transaction_id: createdPayment._id.toString(),
-      description: `BeautyHeaven - $${baseUsdAmount} Wallet Top-up`,
+      description: `Beautyhub - $${baseUsdAmount} Wallet Top-up`,
       pass_digital_charge: false,
     };
 
@@ -116,7 +116,7 @@ const getMySubscriptionHistory = asyncHandler(async (req, res) => {
 
   const skip = (page - 1) * limit;
 
-  const total = await Subscription.countDocuments({ user: userId });
+  const total = await Subscription.countDocuments({ user: user?._id });
 
   const subscriptions = await Subscription.find({
     user: user?._id,
@@ -357,12 +357,12 @@ const publicSubscribe = asyncHandler(async (req, res) => {
     const payload = {
       country_code: countryCode,
       name: foundUser.name,
-      email: foundUser.email || "customer@beautyheaven.site",
+      email: foundUser.email || "customer@Beautyhub.site",
       mobile: cleanPhone,
       amount: finalAmount,
       currency: currency,
       transaction_id: createdPayment._id.toString(),
-      description: `BeautyHeaven - $${promoUsdAmount} Promo Top-up`,
+      description: `Beautyhub - $${promoUsdAmount} Promo Top-up`,
     };
 
     const swychrResponse = await createPaymentLink(token, payload);

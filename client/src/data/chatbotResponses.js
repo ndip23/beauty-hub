@@ -20,14 +20,14 @@ export const responses = {
       keywords: ["trial", "free"],
       answers: [
         "Yes! We offer a free trial for new salon owners 🎉",
-        "You can try BeautyHeaven for free before paying 😉",
+        "You can try Beautyhub for free before paying 😉",
         "Absolutely — sign up and enjoy a free trial!",
       ],
     },
     {
       keywords: ["feature", "what can", "do", "works"],
       answers: [
-        "BeautyHeaven helps manage bookings, services & reviews ⭐",
+        "Beautyhub helps manage bookings, services & reviews ⭐",
         "You get appointments, reviews, analytics & more!",
         "Clients can book services & leave ratings — super easy!",
       ],
@@ -79,7 +79,7 @@ export const responses = {
       keywords: ["fonctionnalité", "peut"],
       answers: [
         "Gestion des rendez-vous, avis & services 💇‍♀️",
-        "BeautyHeaven aide à gérer votre salon facilement",
+        "Beautyhub aide à gérer votre salon facilement",
         "Réservations, avis, analytics & plus",
       ],
     },
@@ -107,14 +107,14 @@ export const faqs = {
     "How do I book appointments?",
     "Do you support reviews?",
     "Is there a free trial?",
-    "What does BeautyHeaven do?",
+    "What does Beautyhub do?",
     "Pricing & subscription plans?",
   ],
   fr: [
     "Comment réserver un rendez-vous ?",
     "Proposez-vous un système d’avis ?",
     "Y a-t-il un essai gratuit ?",
-    "À quoi sert BeautyHeaven ?",
+    "À quoi sert Beautyhub ?",
     "Plans & tarifs d’abonnement ?",
   ],
 };

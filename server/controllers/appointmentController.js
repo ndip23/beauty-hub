@@ -60,7 +60,7 @@ const createAppointment = asyncHandler(async (req, res) => {
     let user = await User.findOne({ phone: clientNumber });
 
     if (!user) {
-      const tempEmail = `${clientNumber}@guest.beautyheaven.site`;
+      const tempEmail = `${clientNumber}@guest.Beautyhub.site`;
       const tempPassword = Math.random().toString(36).slice(-10);
 
       user = await User.create({

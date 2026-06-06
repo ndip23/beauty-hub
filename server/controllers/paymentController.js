@@ -4,6 +4,8 @@ const Payment = require("../models/paymentModel");
 const mongoose = require("mongoose");
 const { login, getPaymentStatus } = require("../services/swychrService");
 const Subscription = require("../models/subscriptionModel");
+const User = require("../models/userModel");
+const Transaction = require("../models/transactionModel");
 
 const STATUS_PENDING = 0;
 const STATUS_SUCCESS = 1;
@@ -205,12 +207,20 @@ const checkPaymentStatus = asyncHandler(async (req, res) => {
       // 🚀 Record the deposit in the transactions list
       await Transaction.create(
         [{
+          transactionId: `TXN-${payment._id.toString().slice(-10).toUpperCase()}`,
           user: user._id,
           type: "DEPOSIT",
           amount: topUpAmount,
+          currency: "USD",
+          status: "COMPLETED",
           balanceAfter: user.walletBalance,
           description: `Wallet Top-up via Swychr`,
-          paymentId: payment._id
+          paymentId: payment._id,
+          paymentUrl: payment.paymentUrl,
+          customerName: user.name,
+          customerEmail: user.email,
+          customerPhone: user.phone,
+          gateway: payment.gateway || "swychr",
         }],
         { session }
       );
