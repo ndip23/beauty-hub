@@ -63,7 +63,7 @@ const SalonOwnerLayout = ({ children }) => {
 
   const handleLinkClick = (e, path) => {
     if (window.innerWidth < 1024) setOpen(false);
-    if (hasNoFunds && path !== "/salon-owner/billing") {
+    if (hasNoFunds && path !== "/salon-owner/billing" && path !== "/salon-owner/dashboard") {
       e.preventDefault();
       toast.error("Your wallet is empty. Please top up to continue.");
       setShowWalletModal(true);

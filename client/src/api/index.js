@@ -3,14 +3,14 @@ import axios from "axios";
 
 const isProduction = window.location.hostname !== "localhost";
 
-const API_BASE_URL = isProduction 
-  ? "https://d1zp7fh45pmgxy.cloudfront.net"  
-  : "http://localhost:8000";                
+const API_BASE_URL = isProduction
+  ? "https://d1zp7fh45pmgxy.cloudfront.net"
+  : "http://localhost:5000";
 
 export const API = axios.create({ baseURL: API_BASE_URL });
 export const BASE_API_URL = API_BASE_URL;
 
-export const apiClient = API; 
+export const apiClient = API;
 
 // --- INTERCEPTOR (KEEP THIS) ---
 API.interceptors.request.use((req) => {
@@ -32,7 +32,7 @@ export const loginUser = (formData) => API.post("/api/users/login", formData);
 export const registerUser = (formData) => API.post("/api/users", formData);
 
 // --- APPOINTMENT API CALLS ---
-export const fetchSalon = (pageNumber = 1) => 
+export const fetchSalon = (pageNumber = 1) =>
   API.get(`/api/salons?pageNumber=${pageNumber}`);
 export const createSalon = (salonData) => API.post("/api/salons", salonData);
 export const fetchMyApointments = () =>
@@ -73,62 +73,62 @@ export const getActiveSubscription = (userId) =>
 
 export const getPaymentStatus = (paymentId) =>
   API.get(`/api/payments/${paymentId}/check-payment-status`);
-export const getPublicPlanPrice = (planId, countryCode) => 
+export const getPublicPlanPrice = (planId, countryCode) =>
   API.get(`/api/subscriptions/public-price/${planId}/${countryCode}`);
 
 
 export const redeemCouponCode = (body) =>
   API.post("/api/subscriptions/redeem-coupon-code", body);
-export const getPlanPrice = (planId, countryCode) => 
+export const getPlanPrice = (planId, countryCode) =>
   API.get(`/api/subscriptions/price/${planId}/${countryCode}`);
-export const createSubscriptionPlan = (data) => 
+export const createSubscriptionPlan = (data) =>
   API.post("/api/subscriptions/types", data);
-export const updateSubscriptionPlan = (id, data) => 
+export const updateSubscriptionPlan = (id, data) =>
   API.put(`/api/subscriptions/types/${id}`, data);
 export const deleteSubscriptionPlan = (id) =>
-   API.delete(`/api/subscriptions/types/${id}`);
+  API.delete(`/api/subscriptions/types/${id}`);
 // Fetch all user subscriptions for the admin list
-export const getAdminOverview = () => 
+export const getAdminOverview = () =>
   API.get("/api/admin/overview");
 
 // Manually activate a user
-export const manualActivate = (data) => 
+export const manualActivate = (data) =>
   API.post("/api/admin/manual-activate", data);
 
 // Suspend a user
-export const restrictAccess = (userId) => 
+export const restrictAccess = (userId) =>
   API.put(`/api/admin/restrict-access/${userId}`);
 export const resetUserPassword = (data) =>
   API.put("/api/admin/reset-password", data);
 
 
-export const getAdminStats = () => 
+export const getAdminStats = () =>
   API.get("/api/admin/stats"); // New endpoint for KPIs
 
 // --- USER & SALON MGMT ---
-export const getAllUsers = () => 
+export const getAllUsers = () =>
   API.get("/api/admin/users"); // Admin route for users
-export const updateUserRole = (id, role) => 
+export const updateUserRole = (id, role) =>
   API.put(`/api/users/${id}/role`, { role });
-export const blockUser = (id) => 
+export const blockUser = (id) =>
   API.put(`/api/users/${id}/block`);
 
 // --- PAYMENTS & COUPONS ---
-export const getAllPayments = () => 
-  API.get("/api/payments"); 
-export const getAllCoupons = () => 
+export const getAllPayments = () =>
+  API.get("/api/payments");
+export const getAllCoupons = () =>
   API.get("/api/subscriptions/coupons");
-export const publicSubscribe = (data) => 
+export const publicSubscribe = (data) =>
   API.post("/api/subscriptions/public-subscribe", data);
-export const createCoupon = (data) => 
+export const createCoupon = (data) =>
   API.post("/api/admin/create-coupon-code", data);
 
 // --- APPOINTMENTS ---
-export const getAllAppointments = () => 
+export const getAllAppointments = () =>
   API.get("/api/appointments/admin/all");
-export const addReview = (salonId, reviewData) => 
+export const addReview = (salonId, reviewData) =>
   API.post(`/api/salons/${salonId}/reviews`, reviewData);
-export const fetchReviews = (salonId) => 
+export const fetchReviews = (salonId) =>
   API.get(`/api/salons/${salonId}/reviews`);
 export const getPlanBySlug = (slug) => API.get(`api/subscription-types/slug/${slug}`);
 export const getSalonBySlug = (slug) => API.get(`api/salons/s/${slug}`);
@@ -149,9 +149,9 @@ export const deleteProduct = (salonId, productId) =>
 /** Get all products of a salon (Public) - Optional but useful */
 export const getSalonProducts = (salonId) =>
   API.get(`/api/salons/${salonId}/products`);
-export const getMyTransactions = (page = 1) => 
+export const getMyTransactions = (page = 1) =>
   API.get(`/api/transactions/my-transactions?page=${page}`);
-export const getAllTransactionsForAdmin = (page = 1) => 
+export const getAllTransactionsForAdmin = (page = 1) =>
   API.get(`/api/admin/transactions?page=${page}`);
 export const downloadTransactionDocument = (transactionId, type = "receipt") =>
   API.get(`/api/transactions/${transactionId}/${type}`, { responseType: "blob" });
