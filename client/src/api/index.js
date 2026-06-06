@@ -5,7 +5,7 @@ const isProduction = window.location.hostname !== "localhost";
 
 const API_BASE_URL = isProduction
   ? "https://d1zp7fh45pmgxy.cloudfront.net"
-  : "http://localhost:5000";
+  : "http://localhost:8000";
 
 export const API = axios.create({ baseURL: API_BASE_URL });
 export const BASE_API_URL = API_BASE_URL;
