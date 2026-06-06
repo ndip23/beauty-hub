@@ -34,7 +34,7 @@ const drawPaymentDocument = async ({ req, res, transaction, type }) => {
   const documentNumber = isInvoice
     ? transaction.invoiceNumber || `INV-${transaction._id.toString().slice(-8).toUpperCase()}`
     : transaction.receiptNumber || `RCPT-${transaction._id.toString().slice(-8).toUpperCase()}`;
-  const title = isInvoice ? "BeautyHeaven Invoice" : "BeautyHeaven Receipt";
+  const title = isInvoice ? "Beautyhub Invoice" : "Beautyhub Receipt";
   const filePrefix = isInvoice ? "invoice" : "receipt";
   const verifyUrl = getVerificationUrl(req, transaction);
   const qrData = await QRCode.toDataURL(verifyUrl, {
@@ -79,7 +79,7 @@ const drawPaymentDocument = async ({ req, res, transaction, type }) => {
   doc.fillColor("#111827").fontSize(14).text("Summary", 48, 542);
   doc.moveTo(48, 564).lineTo(547, 564).strokeColor("#E5E7EB").stroke();
   doc.fillColor("#6B7280").fontSize(9).text("Description", 48, 586);
-  doc.fillColor("#111827").fontSize(11).text(transaction.description || "BeautyHeaven payment", 48, 604, {
+  doc.fillColor("#111827").fontSize(11).text(transaction.description || "Beautyhub payment", 48, 604, {
     width: 300,
   });
 
@@ -97,7 +97,7 @@ const drawPaymentDocument = async ({ req, res, transaction, type }) => {
   );
   doc.fillColor("#6B7280").fontSize(8).text(verifyUrl, 164, 784, { width: 340 });
 
-  doc.fillColor("#4C1D95").fontSize(9).text("BeautyHeaven", 48, 806, {
+  doc.fillColor("#4C1D95").fontSize(9).text("Beautyhub", 48, 806, {
     width: 500,
     align: "right",
   });

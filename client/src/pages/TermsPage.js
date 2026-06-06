@@ -11,20 +11,20 @@ const TermsPage = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction and Acceptance</h2>
             <p className="leading-relaxed">
-              Welcome to BeautyHeaven. By accessing or using our website and services, you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use our platform.
+              Welcome to Beautyhub. By accessing or using our website and services, you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use our platform.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Nature of the Platform</h2>
             <p className="leading-relaxed mb-4">
-              <strong>BeautyHeaven is a Directory and Software Platform.</strong> We connect clients with independent beauty professionals and salon owners. We do not provide beauty services directly.
+              <strong>Beautyhub is a Directory and Software Platform.</strong> We connect clients with independent beauty professionals and salon owners. We do not provide beauty services directly.
             </p>
             <p className="leading-relaxed mb-4">
               <strong>No Liability for Services:</strong> We are not responsible for the quality, safety, legality, or outcome of the services provided by the professionals listed on our platform. Any disputes regarding services, injuries, or damages must be resolved directly between the client and the professional.
             </p>
             <p className="leading-relaxed">
-              <strong>Off-Platform Communication:</strong> Users may be redirected to third-party applications like WhatsApp to finalize bookings. BeautyHeaven does not monitor and is not responsible for communications or transactions that occur outside our platform.
+              <strong>Off-Platform Communication:</strong> Users may be redirected to third-party applications like WhatsApp to finalize bookings. Beautyhub does not monitor and is not responsible for communications or transactions that occur outside our platform.
             </p>
           </section>
 
@@ -39,10 +39,10 @@ const TermsPage = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Payments and Subscriptions (Salon Owners)</h2>
             <p className="leading-relaxed mb-4">
-              To list your business on BeautyHeaven, you must subscribe to one of our premium plans. By subscribing, you agree to recurring billing based on your selected plan.
+              To list your business on Beautyhub, you must subscribe to one of our premium plans. By subscribing, you agree to recurring billing based on your selected plan.
             </p>
             <ul className="list-disc pl-5 space-y-3 leading-relaxed">
-              <li>We use secure, third-party payment processors (e.g., Stripe, Paystack). BeautyHeaven does not store your full credit card details.</li>
+              <li>We use secure, third-party payment processors (e.g., Stripe, Paystack). Beautyhub does not store your full credit card details.</li>
               <li><strong>Cancellations:</strong> You may cancel your subscription at any time through your dashboard. Payments are non-refundable, but you will retain access to your premium features until the end of your current billing cycle.</li>
             </ul>
           </section>
@@ -68,7 +68,7 @@ const TermsPage = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Contact Information</h2>
             <p className="leading-relaxed">
-              If you have any questions about these Terms, please contact our support team at <strong>support@beautyheaven.com</strong>.
+              If you have any questions about these Terms, please contact our support team at <strong>support@Beautyhub.com</strong>.
             </p>
           </section>
         </div>

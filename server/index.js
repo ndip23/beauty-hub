@@ -35,7 +35,7 @@ app.use(compression());
 
 // 2. CORS - Updated to include bookerbeauty.com
 app.use(cors({
-  origin: ["https://bookerbeauty.com", "https://www.bookerbeauty.com", "https://www.mybeautyheaven.site", "http://localhost:3000", "https://mybeautyheaven.site"],
+  origin: ["https://bookerbeauty.com", "https://www.bookerbeauty.com", "https://www.myBeautyhub.site", "http://localhost:3000", "https://myBeautyhub.site"],
   credentials: true
 }));
 
@@ -77,7 +77,7 @@ app.get("/api-docs.json", (req, res) => {
 // Root route
 app.get("/", (req, res) => {
   res.send(`
-    <h1>BeautyHeaven API is running!</h1>
+    <h1>Beautyhub API is running!</h1>
     <p><a href="/api-docs" target="_blank">📚 Open API Documentation (Swagger UI)</a></p>
   `);
 });

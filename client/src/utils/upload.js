@@ -2,7 +2,7 @@
 export const uploadToCloudinary = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "beautyheaven_preset"); 
+  formData.append("upload_preset", "Beautyhub_preset"); 
 
   try {
     const response = await fetch(

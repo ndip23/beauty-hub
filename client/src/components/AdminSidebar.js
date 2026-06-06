@@ -78,7 +78,7 @@ const AdminSidebar = () => {
         <div className="flex items-center justify-between mb-6">
           <Link to="/" className="text-xl font-extrabold">
             <span className="bg-gradient-to-r from-indigo-300 to-purple-400 bg-clip-text text-transparent">
-              BeautyHeaven
+              Beautyhub
             </span>
           </Link>
 

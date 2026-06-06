@@ -8,10 +8,10 @@ const isServerlessRuntime = () =>
   Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
 const getConnectionCache = () => {
-  if (!global.__beautyHeavenMongooseCache) {
-    global.__beautyHeavenMongooseCache = { conn: null, promise: null };
+  if (!global.__BeautyhubMongooseCache) {
+    global.__BeautyhubMongooseCache = { conn: null, promise: null };
   }
-  return global.__beautyHeavenMongooseCache;
+  return global.__BeautyhubMongooseCache;
 };
 
 const handleFatalDbError = (messageOrError) => {

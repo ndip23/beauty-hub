@@ -13,7 +13,7 @@
     "promo": "Promo"
   },
   "footer": {
-    "title": "BeautyHeaven",
+    "title": "Beautyhub",
     "description": "Your trusted platform to discover and connect with the best beauty professionals across Africa. Find top-rated salons, nail artists, and beauty specialists near you.",
     "quickLinks": "Quick Links",
     "about": "About Us",
@@ -28,7 +28,7 @@
     "contactSupport": "Contact Support"
   },
   "authLayout": {
-    "branding": "BeautyHeaven ♡",
+    "branding": "Beautyhub ♡",
     "heading": "Grow Your Beauty Business",
     "description": "Join Cameroon's premier beauty platform and connect with thousands of potential customers.",
     "features": {
@@ -37,7 +37,7 @@
       "booking": "Booking Management"
     },
     "testimonial": {
-      "text": "\"BeautyHeaven helped me double my clientele in 3 months!\"",
+      "text": "\"Beautyhub helped me double my clientele in 3 months!\"",
       "author": "- Marie, Salon Elegance Douala"
     }
   },
@@ -109,7 +109,7 @@
     "searchButton": "Search"
   },
   "about": {
-    "heroTitle": "About BeautyHeaven",
+    "heroTitle": "About Beautyhub",
     "heroSubtitle": "Connecting beauty professionals and clients across Africa with trust and technology.",
     "missionTitle": "Our Mission",
     "missionText1": "Our mission is to empower beauty entrepreneurs by providing a robust platform to showcase their talents, manage their business, and connect with a wider audience. We aim to simplify the process for clients to discover, book, and review beauty services, ensuring a seamless and trustworthy experience for everyone.",
@@ -131,7 +131,7 @@
       "desc": "Highlighting the best talent."
     },
     "ctaTitle": "Join Our Growing Platform",
-    "ctaText": "Whether you're looking for your next beauty treatment or want to grow your salon business, BeautyHeaven is here for you.",
+    "ctaText": "Whether you're looking for your next beauty treatment or want to grow your salon business, Beautyhub is here for you.",
     "exploreSalons": "Explore Salons",
     "listBusiness": "List Your Business"
   },
@@ -235,7 +235,7 @@
     },
     "ctaSalonOwners": {
       "title": "Are You a Salon Owner?",
-      "description": "Join thousands of beauty businesses growing their customer base with BeautyHeaven. Get more bookings, manage your business, and grow faster.",
+      "description": "Join thousands of beauty businesses growing their customer base with Beautyhub. Get more bookings, manage your business, and grow faster.",
       "button": "Start Your Free Trial"
     }
   },
@@ -507,7 +507,7 @@
     "showingResults": "Showing {{filtered}} of {{total}} salons"
   },
   "subscriptions": {
-    "heroTitle": "Grow Your Beauty Business with BeautyHeaven",
+    "heroTitle": "Grow Your Beauty Business with Beautyhub",
     "heroDesc": "Choose the perfect plan for your salon and start attracting more customers today.",
     "pricingTitle": "Simple, Transparent Pricing",
     "pricingDesc": "Start with any plan and upgrade anytime as your business grows.",
@@ -520,7 +520,7 @@
     "mostPopular": "Most Popular",
     "perMonth": "Month",
     "choosePlan": "Choose Plan",
-    "featuresTitle": "Why Salon Owners Choose BeautyHeaven",
+    "featuresTitle": "Why Salon Owners Choose Beautyhub",
     "feature1Title": "Manage Your Salon",
     "feature1Desc": "Complete profile, services, and appointment management in one place.",
     "feature2Title": "Analytics",
@@ -648,10 +648,10 @@
   "becomeOwnerPage": {
     "hero": {
       "title": "Grow Your Beauty Business",
-      "subtitle": "Join thousands of salon owners using BeautyHeaven to attract more customers, manage appointments, and scale faster."
+      "subtitle": "Join thousands of salon owners using Beautyhub to attract more customers, manage appointments, and scale faster."
     },
     "why": {
-      "title": "Why Choose BeautyHeaven?",
+      "title": "Why Choose Beautyhub?",
       "card1": {
         "title": "Easy Management",
         "text": "Manage your salon profile, services and appointments all in one place."

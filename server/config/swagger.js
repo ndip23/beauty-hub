@@ -5,7 +5,7 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "BeautyHeaven API",
+      title: "Beautyhub API",
       version: "1.0.0",
       description:
         "A complete backend API for salon booking platform with user auth, appointments, messaging, and analytics",
@@ -20,7 +20,7 @@ const options = {
         description: "Development server",
       },
       {
-        url: "https://api.beautyheaven.site/",
+        url: "https://api.Beautyhub.site/",
         description: "Production server",
       },
     ],

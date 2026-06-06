@@ -74,7 +74,7 @@ const Chatbot = ({ isOpen, onClose }) => {
           {/* HEADER */}
           <div className="bg-gradient-to-r from-primary-pink to-primary-purple text-white px-4 py-3 flex justify-between items-center">
             <h2 className="font-semibold text-lg">
-              {lang === "fr" ? "Support BeautyHeaven" : "BeautyHeaven Support"}
+              {lang === "fr" ? "Support Beautyhub" : "Beautyhub Support"}
             </h2>
             <button onClick={onClose}>
               <X size={22} />

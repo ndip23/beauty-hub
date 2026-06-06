@@ -66,7 +66,7 @@ const LandingPage = () => {
       {/* SECTION 3: BENEFITS */}
       <section className="py-20 px-6 bg-gray-50">
         <div className="max-w-4xl mx-auto">
-          <SectionTitle>Why Join Beauty Heaven Directory?</SectionTitle>
+          <SectionTitle>Why Join Beautyhub Directory?</SectionTitle>
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
               "Get clients in your area",
@@ -111,7 +111,7 @@ const LandingPage = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Start Getting Clients Today</h2>
           <p className="text-lg text-purple-200 mt-4 max-w-2xl mx-auto">
-            Join Beauty Heaven Directory and make your business visible online. This limited-time offer is for new members only. The earlier you join, the faster you start getting clients.
+            Join Beautyhub Directory and make your business visible online. This limited-time offer is for new members only. The earlier you join, the faster you start getting clients.
           </p>
           <div className="mt-10 bg-white text-gray-800 rounded-xl p-8 max-w-md mx-auto shadow-2xl">
             <p className="text-lg font-medium line-through text-gray-400">Subscription fee: $30 per month</p>
