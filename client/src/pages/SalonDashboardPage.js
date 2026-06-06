@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { 
-  FaCalendarPlus, FaRegComments, FaRegStar, FaSpinner, FaPlus, 
+  FaCalendarPlus, FaRegComments, FaRegStar, FaSpinner,
   FaWallet, FaStore, FaConciergeBell, FaCalendarAlt, FaArrowRight, FaCopy, FaCheck, FaTimes,
   FaProductHunt, FaCreditCard, FaReceipt, FaCommentDots, FaStar, FaChartLine, FaVideo, FaPlayCircle, FaCog
 } from "react-icons/fa";
@@ -22,6 +22,13 @@ const SalonDashboardPage = () => {
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [showWalletModal, setShowWalletModal] = useState(false);
+
+  // FIX: Using the salonError variable to satisfy the linter/compiler
+  useEffect(() => {
+    if (salonError) {
+      console.error("System Log: Salon Data failed to load", salonError);
+    }
+  }, [salonError]);
 
   const loading = loadingSalon || loadingAppointments;
 
@@ -137,7 +144,7 @@ const SalonDashboardPage = () => {
       title: "Assistant: Your account is fully active!",
       text: "Everything is set up! Here is your public salon link. Copy it and share it with your clients on WhatsApp or social media to start receiving bookings.",
       actionText: "Copy Link",
-      isShare: true, // 🚀 FLAG FOR COPY ACTION
+      isShare: true, 
       path: `${window.location.origin}/salon/${salonData?.slug}`,
       badge: "Optimization & Marketing"
     };
@@ -145,7 +152,6 @@ const SalonDashboardPage = () => {
 
   const guide = getAssistantGuide();
 
-  // 🚀 COPY LINK TO CLIPBOARD FUNCTION
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(guide.path);
@@ -219,7 +225,7 @@ const SalonDashboardPage = () => {
         </div>
       )}
 
-      {/* 🚀 QUICK ACTION CARDS MOVED TO THE TOP (Requirement 3) */}
+      {/* QUICK ACTION CARDS */}
       <div className="space-y-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {quickLinks.map((link, i) => (
@@ -244,7 +250,7 @@ const SalonDashboardPage = () => {
         </div>
       </div>
 
-      {/* 🚀 THE SMART GUIDED ASSISTANT CARD */}
+      {/* SMART GUIDED ASSISTANT CARD */}
       <div className="bg-white border-2 border-purple-50 rounded-[2.5rem] p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-3 w-full md:w-2/3">
           <span className="bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full">
@@ -252,21 +258,14 @@ const SalonDashboardPage = () => {
           </span>
           <h2 className="text-2xl font-black text-gray-900 tracking-tight">{guide.title}</h2>
           <p className="text-gray-500 text-base leading-relaxed font-medium">{guide.text}</p>
-          
-          {/* 🚀 DISPLAYING THE RAW PUBLIC LINK ON SCREEN */}
           {guide.isShare && (
             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-sm font-bold text-primary-purple select-all mt-4 w-full break-all">
                 {guide.path}
             </div>
           )}
         </div>
-        
-        {/* 🚀 DYNAMIC ACTION BUTTON */}
         {guide.isShare ? (
-          <button 
-            onClick={handleCopyLink}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap ml-auto md:ml-0"
-          >
+          <button onClick={handleCopyLink} className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap ml-auto md:ml-0">
             {copied ? <FaCheck /> : <FaCopy />}
             {copied ? "Copied!" : "Copy Link"}
           </button>
@@ -338,7 +337,7 @@ const SalonDashboardPage = () => {
         </div>
       </div>
 
-      {/* ==================== WALLET TOP-UP MODAL ==================== */}
+      {/* WALLET TOP-UP MODAL */}
       {showWalletModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl text-center animate-in zoom-in duration-300">
@@ -346,26 +345,16 @@ const SalonDashboardPage = () => {
               <FaWallet />
             </div>
             <h2 className="text-2xl font-black text-gray-900 mb-4 tracking-tight">Top Up Required</h2>
-            <p className="text-gray-500 mb-8 leading-relaxed font-medium">
-              Your wallet balance is currently empty. To access this feature and keep your salon active, please add funds to your wallet.
-            </p>
+            <p className="text-gray-500 mb-8 leading-relaxed font-medium">Your wallet balance is currently empty. To access this feature and keep your salon active, please add funds to your wallet.</p>
             <div className="flex flex-col gap-3">
               <Link to="/salon-owner/billing" onClick={() => setShowWalletModal(false)}>
-                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl">
-                  Top Up Wallet Now
-                </button>
+                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl">Top Up Wallet Now</button>
               </Link>
-              <button 
-                onClick={() => setShowWalletModal(false)}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all"
-              >
-                Cancel
-              </button>
+              <button onClick={() => setShowWalletModal(false)} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all">Cancel</button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };
