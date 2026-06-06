@@ -101,7 +101,7 @@ const SalonDashboardPage = () => {
 
   const handleLinkClick = (e, path) => {
     const hasNoFunds = (user?.walletBalance === undefined || user?.walletBalance === null ? 0 : Number(user.walletBalance)) < 0.50 && !user?.isVerified;
-    if (hasNoFunds && path !== "/salon-owner/billing") {
+    if (hasNoFunds && path !== "/salon-owner/billing" && path !== "/salon-owner/dashboard") {
       e.preventDefault();
       toast.error("Your wallet is empty. Please top up to continue.");
       setShowWalletModal(true);
@@ -299,7 +299,7 @@ const SalonDashboardPage = () => {
         <div className="lg:col-span-2 backdrop-blur-xl bg-white/70 rounded-3xl shadow-md p-8 border border-gray-200/40">
           <div className="flex justify-between mb-6">
             <h2 className="text-2xl font-semibold">{t("salondashboard.todaysAppointments")}</h2>
-            <Link to="/salon-owner/appointments" className="text-primary-purple font-semibold hover:underline">{t("salondashboard.viewCalendar")}</Link>
+            <Link to="/salon-owner/appointments" onClick={(e) => handleLinkClick(e, "/salon-owner/appointments")} className="text-primary-purple font-semibold hover:underline">{t("salondashboard.viewCalendar")}</Link>
           </div>
           <div className="space-y-4">
             {todayAppointments.length > 0 ? todayAppointments.map((appt) => (
@@ -328,7 +328,7 @@ const SalonDashboardPage = () => {
                 { icon: FaRegComments, label: t("salondashboard.replyMessages"), link: "/salon-owner/messages" },
                 { icon: FaRegStar, label: t("salondashboard.respondReviews"), link: "/salon-owner/reviews" },
               ].map((action, i) => (
-                <Link key={i} to={action.link} className="flex items-center space-x-4 p-4 hover:bg-gray-100 rounded-xl transition font-medium">
+                <Link key={i} to={action.link} onClick={(e) => handleLinkClick(e, action.link)} className="flex items-center space-x-4 p-4 hover:bg-gray-100 rounded-xl transition font-medium">
                   <action.icon className="text-primary-purple text-xl" />
                   <span className="text-lg">{action.label}</span>
                 </Link>
