@@ -5,7 +5,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FaWhatsapp, FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import Footer from '../components/Footer';
 
 // This is the complete, new landing page component.
 const LandingPage = () => {
@@ -184,8 +183,6 @@ const LandingPage = () => {
       >
         <FaWhatsapp size={30} />
       </a>
-
-      <Footer />
     </div>
   );
 };
