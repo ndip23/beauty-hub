@@ -159,10 +159,20 @@ const PaymentPage = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
 
+    // 🌟 FIX: Manually verify the token exists in storage before calling the API
+    const userInfo = localStorage.getItem("userInfo");
+    const token = userInfo ? JSON.parse(userInfo).token : null;
+
+    if (!token || token === "undefined") {
+      toast.error("Session expired. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
     if (plan) { 
       ReactPixel.track('InitiateCheckout', {
         content_name: plan.planName,
-        value: customAmount || plan.amount, // 🚀 Uses custom wallet amount if available
+        value: customAmount || plan.amount,
         currency: plan.currency
       });
     }
@@ -177,7 +187,6 @@ const PaymentPage = () => {
         return;
       }
 
-      // 🚀 Send the custom top-up amount in the 'amountOverride' parameter
       const response = await subscribe({ 
         planId: plan.slug, 
         countryCode: selectedRegion.code, 

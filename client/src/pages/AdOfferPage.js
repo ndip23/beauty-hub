@@ -2,8 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { FaWhatsapp, FaCheckCircle, FaRocket, FaMagic, FaGift, FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom"; 
+import { FaWhatsapp, FaCheckCircle, FaRocket, FaMagic, FaGift } from "react-icons/fa";
 import { useTranslation } from "react-i18next"; // Added this
 
 const AdOfferPage = () => {
@@ -17,7 +16,7 @@ const AdOfferPage = () => {
   return (
     <div className="bg-[#F5F5F7] min-h-screen font-sans antialiased text-[#1D1D1F] overflow-x-hidden">
       
-      {/* 1. TIGHT NAVIGATION BAR */}
+      {/* 1. TIGHT NAVIGATION BAR 
       <nav className="fixed top-0 w-full z-[100] bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between">
           <Link 
@@ -29,7 +28,7 @@ const AdOfferPage = () => {
           <span className="font-black tracking-tighter text-base text-primary-purple">Beautyhub</span>
           <div className="w-8"></div>
         </div>
-      </nav>
+      </nav>*/}
 
       <main className="max-w-4xl mx-auto px-4 pt-16 pb-20">
         

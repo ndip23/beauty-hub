@@ -15,10 +15,29 @@ export const apiClient = API;
 // --- INTERCEPTOR (KEEP THIS) ---
 API.interceptors.request.use((req) => {
   const userInfo = localStorage.getItem("userInfo");
+  const token = localStorage.getItem("token"); // Check for raw token too
+
+  let finalToken = null;
+
   if (userInfo) {
-    const token = JSON.parse(userInfo).token;
-    req.headers.Authorization = `Bearer ${token}`;
+    try {
+      const parsed = JSON.parse(userInfo);
+      finalToken = parsed.token;
+    } catch (e) {
+      console.error("Error parsing userInfo");
+    }
+  } 
+  
+  // Fallback to raw token key if userInfo didn't have it
+  if (!finalToken && token) {
+    finalToken = token;
   }
+
+  // 🌟 CRITICAL: Only set the header if the token is a real string and NOT "undefined"
+  if (finalToken && finalToken !== "undefined" && finalToken !== "null") {
+    req.headers.Authorization = `Bearer ${finalToken}`;
+  }
+  
   return req;
 });
 
