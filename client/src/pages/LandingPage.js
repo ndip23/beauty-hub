@@ -36,7 +36,7 @@ const LandingPage = () => {
             </p>
             <Link to="/register">
               <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-transform hover:scale-105 shadow-lg">
-                Register Now & Start Getting Clients for just $2
+                Register Now & Start Getting Clients
               </button>
             </Link>
           </motion.div>
@@ -113,11 +113,6 @@ const LandingPage = () => {
           <p className="text-lg text-purple-200 mt-4 max-w-2xl mx-auto">
             Join Beautyhub Directory and make your business visible online. This limited-time offer is for new members only. The earlier you join, the faster you start getting clients.
           </p>
-          <div className="mt-10 bg-white text-gray-800 rounded-xl p-8 max-w-md mx-auto shadow-2xl">
-            <p className="text-lg font-medium line-through text-gray-400">Subscription fee: $30 per month</p>
-            <p className="text-5xl font-extrabold text-purple-600 my-2">$2</p>
-            <p className="text-xl font-bold">For Your First Month</p>
-          </div>
         </div>
       </section>
       
