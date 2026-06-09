@@ -93,7 +93,7 @@ const Footer = () => {
             {t("footer.copyright")}
           </p>
           <a
-            href="mailto:support@Beautyhub.site"
+            href="mailto:support@BookerBeauty.site"
             target={"_blank"}
             rel="noopener noreferrer"
             className="flex items-center space-x-2 text-green-400 hover:text-white mt-4 sm:mt-0"

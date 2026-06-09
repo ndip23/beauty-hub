@@ -13,7 +13,7 @@
     "promo": "Promo"
   },
   "footer": {
-    "title": "Beautyhub",
+    "title": "BookerBeauty",
     "description": "Votre plateforme de confiance pour découvrir et se connecter avec les meilleurs professionnels de la beauté à travers l'Afrique. Trouvez des salons, des artistes des ongles et des spécialistes de la beauté bien notés près de chez vous.",
     "quickLinks": "Liens rapides",
     "about": "À Propos",
@@ -28,7 +28,7 @@
     "contactSupport": "Contacter le support"
   },
   "authLayout": {
-    "branding": "Beautyhub ♡",
+    "branding": "BookerBeauty ♡",
     "heading": "Développez Votre Entreprise de Beauté",
     "description": "Rejoignez la principale plateforme de beauté du Cameroun et connectez-vous avec des milliers de clients potentiels.",
     "features": {
@@ -37,7 +37,7 @@
       "booking": "Gestion des Réservations"
     },
     "testimonial": {
-      "text": "\"Beautyhub m'a aidée à doubler ma clientèle en 3 mois !\"",
+      "text": "\"BookerBeauty m'a aidée à doubler ma clientèle en 3 mois !\"",
       "author": "- Marie, Salon Elegance Douala"
     }
   },
@@ -109,7 +109,7 @@
     "searchButton": "Rechercher"
   },
   "about": {
-    "heroTitle": "À propos de Beautyhub",
+    "heroTitle": "À propos de BookerBeauty",
     "heroSubtitle": "Connecter les professionnels de la beauté et les clients à travers l'Afrique avec confiance et technologie.",
     "missionTitle": "Notre Mission",
     "missionText1": "Notre mission est de responsabiliser les entrepreneurs de la beauté en fournissant une plateforme robuste pour mettre en valeur leurs talents, gérer leur activité et se connecter à un public plus la rge. Nous visons à simplifier le processus pour que les clients découvrent, réservent et évaluent les services de beauté, garantissant une expérience fluide et fiable pour tous.",
@@ -131,7 +131,7 @@
       "desc": "Mettre en avant les meilleurs talents."
     },
     "ctaTitle": "Rejoignez notre plateforme en croissance",
-    "ctaText": "Que vous cherchiez votre prochain soin de beauté ou que vous souhaitiez développer votre salon, Beautyhub est là pour vous.",
+    "ctaText": "Que vous cherchiez votre prochain soin de beauté ou que vous souhaitiez développer votre salon, BookerBeauty est là pour vous.",
     "exploreSalons": "Explorer les salons",
     "listBusiness": "Inscrire votre entreprise"
   },
@@ -343,7 +343,7 @@
     },
     "ctaSalonOwners": {
       "title": "Vous êtes propriétaire d'un salon ?",
-      "description": "Rejoignez des milliers d'entreprises de beauté qui développent leur clientèle avec Beautyhub. Obtenez plus de réservations, gérez votre entreprise et croissez plus rapidement.",
+      "description": "Rejoignez des milliers d'entreprises de beauté qui développent leur clientèle avec BookerBeauty. Obtenez plus de réservations, gérez votre entreprise et croissez plus rapidement.",
       "button": "Commencez votre essai gratuit"
     }
   },
@@ -408,8 +408,8 @@
   },
   "register": {
     "createAccount": "Créez votre compte",
-    "joinMessage": "Rejoignez BeautyHub et commencez à développer votre entreprise de beauté avec le plan {{plan}}.",
-    "joinMessageNoPlan": "Rejoignez BeautyHub et commencez à développer votre entreprise de beauté.",
+    "joinMessage": "Rejoignez BookerBeauty et commencez à développer votre entreprise de beauté avec le plan {{plan}}.",
+    "joinMessageNoPlan": "Rejoignez BookerBeauty et commencez à développer votre entreprise de beauté.",
     "firstName": "Prénom",
     "lastName": "Nom",
     "email": "Email",
@@ -461,7 +461,7 @@
   },
   "salondashboard": {
     "noSubscription": "Aucun abonnement actif",
-    "subscribeToUnlock": "Abonnez-vous pour débloquer toutes les fonctionnalités de BeautyHub.",
+    "subscribeToUnlock": "Abonnez-vous pour débloquer toutes les fonctionnalités de BookerBeauty.",
     "choosePlan": "Choisir un forfait",
     "welcomeBack": "Bon retour, {{name}} !",
     "summary": "Voici un résumé de l'activité de votre salon aujourd'hui.",
@@ -615,7 +615,7 @@
     "showingResults": "Affichage de {{filtered}} sur {{total}} salons"
   },
   "subscriptions": {
-    "heroTitle": "Développez votre entreprise de beauté avec Beautyhub",
+    "heroTitle": "Développez votre entreprise de beauté avec BookerBeauty",
     "heroDesc": "Choisissez le plan parfait pour votre salon et commencez à attirer plus de clients dès aujourd'hui.",
     "pricingTitle": "Tarification simple et transparente",
     "pricingDesc": "Commencez avec n'importe quel plan et passez à un plan supérieur à tout moment au fur et à mesure que votre entreprise se développe.",
@@ -628,7 +628,7 @@
     "mostPopular": "Le plus populaire",
     "perMonth": "Mois",
     "choosePlan": "Choisir le plan",
-    "featuresTitle": "Pourquoi les propriétaires de salons choisissent Beautyhub",
+    "featuresTitle": "Pourquoi les propriétaires de salons choisissent BookerBeauty",
     "feature1Title": "Gérez votre salon",
     "feature1Desc": "Gestion complète du profil, des services et des rendez-vous en un seul endroit.",
     "feature2Title": "Analytique",
@@ -648,10 +648,10 @@
   "becomeOwnerPage": {
     "hero": {
       "title": "Développez Votre Salon de Beauté",
-      "subtitle": "Rejoignez des milliers de propriétaires de salons utilisant Beautyhub pour attirer plus de clients, gérer les rendez-vous et grandir rapidement."
+      "subtitle": "Rejoignez des milliers de propriétaires de salons utilisant BookerBeauty pour attirer plus de clients, gérer les rendez-vous et grandir rapidement."
     },
     "why": {
-      "title": "Pourquoi Choisir Beautyhub ?",
+      "title": "Pourquoi Choisir BookerBeauty ?",
       "card1": {
         "title": "Gestion Facile",
         "text": "Gérez votre profil, vos services et rendez-vous au même endroit."

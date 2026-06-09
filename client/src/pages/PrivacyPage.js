@@ -10,7 +10,7 @@ const PrivacyPage = () => {
         <div className="space-y-8">
           <section>
             <p className="leading-relaxed text-lg">
-              At Beautyhub, we take your privacy seriously. This policy explains what information we collect, how we use it, and how we protect it when you use our website and services.
+              At BookerBeauty, we take your privacy seriously. This policy explains what information we collect, how we use it, and how we protect it when you use our website and services.
             </p>
           </section>
 
@@ -36,7 +36,7 @@ const PrivacyPage = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. How We Use Your Information</h2>
             <ul className="list-disc pl-5 space-y-3 leading-relaxed">
-              <li>To create and maintain your Beautyhub account.</li>
+              <li>To create and maintain your BookerBeauty account.</li>
               <li>To display Salon profiles to potential customers publicly.</li>
               <li>To facilitate connections (e.g., providing the salon's WhatsApp number to the customer when they click "Book").</li>
               <li>To process your subscription payments.</li>
@@ -57,7 +57,7 @@ const PrivacyPage = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Third-Party Links & Apps</h2>
             <p className="leading-relaxed">
-              Our platform connects you to third-party applications like WhatsApp. Once you click a link that redirects you away from Beautyhub, you are no longer governed by this Privacy Policy. We are not responsible for the privacy practices of other websites or applications.
+              Our platform connects you to third-party applications like WhatsApp. Once you click a link that redirects you away from BookerBeauty, you are no longer governed by this Privacy Policy. We are not responsible for the privacy practices of other websites or applications.
             </p>
           </section>
 
@@ -78,7 +78,7 @@ const PrivacyPage = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Contact Us</h2>
             <p className="leading-relaxed">
-              If you have any questions or concerns regarding this Privacy Policy, please email us at <strong>privacy@Beautyhub.com</strong>.
+              If you have any questions or concerns regarding this Privacy Policy, please email us at <strong>privacy@BookerBeauty.com</strong>.
             </p>
           </section>
         </div>

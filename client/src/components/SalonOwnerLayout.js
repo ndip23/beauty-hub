@@ -97,7 +97,7 @@ const SalonOwnerLayout = ({ children }) => {
       >
         <div className="flex items-center justify-between mb-8">
           <Link to="/" className="flex items-center gap-2 bg-white p-2 rounded-xl">
-            <img src="/logo.png" alt="Beautyhub Logo" className="h-10 object-contain" />
+            <img src="/logo.png" alt="BookerBeauty Logo" className="h-10 object-contain" />
           </Link>
           <button onClick={() => setOpen(false)} className="lg:hidden text-gray-300">
             <FaTimes size={22} />

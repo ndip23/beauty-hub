@@ -18,7 +18,7 @@ const LandingPage = () => {
 
   const steps = [
     { num: 1, icon: <FaUsers />, title: "Create Your Account", desc: "Sign up and create your business account in just a few minutes." },
-    { num: 2, icon: <FaWallet className="text-emerald-500" />, title: "Activate Your Account", desc: "Load your Beautyhub Beauty wallet with a minimum of $5 to activate your account." },
+    { num: 2, icon: <FaWallet className="text-emerald-500" />, title: "Activate Your Account", desc: "Load your BookerBeauty Beauty wallet with a minimum of $5 to activate your account." },
     { num: 3, icon: <FaStore className="text-purple-500" />, title: "Set Up Your Business Profile", desc: "Complete your profile by adding your name, location, opening hours, and photos." },
     { num: 4, icon: <FaConciergeBell className="text-pink-500" />, title: "Add Your Services", desc: "List all the services you offer and set your own prices easily." },
     { num: 5, icon: <FaCheckCircle className="text-blue-500 animate-pulse" />, title: "Start Receiving Inquiries", desc: "Pay only $0.05 when a customer contacts you. You only pay when a customer reaches out!" }
@@ -34,11 +34,11 @@ const LandingPage = () => {
   ];
 
   const faqs = [
-    { q: "How much does it cost to join?", a: "You can create an account completely free and activate it by loading a minimum of $5 into your Beautyhub Beauty wallet." },
+    { q: "How much does it cost to join?", a: "You can create an account completely free and activate it by loading a minimum of $5 into your BookerBeauty Beauty wallet." },
     { q: "When am I charged?", a: "A service fee of only $0.05 is deducted whenever a potential customer contacts you directly through the platform. You never pay a monthly subscription fee." },
-    { q: "Can I manage my staff?", a: "Yes. Beautyhub Beauty includes a complete suite of employee management tools to track performance and assign roles." },
+    { q: "Can I manage my staff?", a: "Yes. BookerBeauty Beauty includes a complete suite of employee management tools to track performance and assign roles." },
     { q: "Can I send promotions to customers?", a: "Absolutely. You can send bulk SMS, Email, and WhatsApp campaigns directly from your business control dashboard." },
-    { q: "Is Beautyhub Beauty suitable for independent stylists?", a: "Yes. The platform is designed to scale from independent freelancers up to large multi-location beauty salons." }
+    { q: "Is BookerBeauty Beauty suitable for independent stylists?", a: "Yes. The platform is designed to scale from independent freelancers up to large multi-location beauty salons." }
   ];
 
   return (
@@ -59,11 +59,11 @@ const LandingPage = () => {
               Get More Clients <br />
               For Your Salon With <br />
               <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-                BeautyHub.
+                BookerBeauty.
               </span>
             </h1>
             <p className="text-lg md:text-2xl text-gray-500 font-medium max-w-3xl mx-auto leading-relaxed mb-12">
-            BeautyHub helps salons, spas, barbershops, makeup artists, nail technicians, and beauty professionals attract new clients, manage their businesses, and grow faster from one platform.
+            BookerBeauty helps salons, spas, barbershops, makeup artists, nail technicians, and beauty professionals attract new clients, manage their businesses, and grow faster from one platform.
             </p>
           </motion.div>
 
@@ -98,7 +98,7 @@ const LandingPage = () => {
       <section className="py-24 bg-white border-y border-gray-100 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900">How Beautyhub Beauty Works</h2>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900">How BookerBeauty Beauty Works</h2>
             <p className="text-gray-500 font-medium text-lg mt-2">Five simple steps to unlock massive local business growth.</p>
           </div>
 
@@ -125,7 +125,7 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900">Everything Included with Your Account</h2>
-            <p className="text-gray-500 font-medium text-lg mt-2 max-w-2xl mx-auto">Beautyhub Beauty is more than a client acquisition platform. You also get access to powerful business management tools at no additional cost.</p>
+            <p className="text-gray-500 font-medium text-lg mt-2 max-w-2xl mx-auto">BookerBeauty Beauty is more than a client acquisition platform. You also get access to powerful business management tools at no additional cost.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -149,7 +149,7 @@ const LandingPage = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900">Supported Payment Methods</h2>
-            <p className="text-gray-500 font-medium text-lg mt-2">Beautyhub Beauty supports the most popular payment methods across Africa.</p>
+            <p className="text-gray-500 font-medium text-lg mt-2">BookerBeauty Beauty supports the most popular payment methods across Africa.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -194,7 +194,7 @@ const LandingPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { text: "Beautyhub Beauty helped us get more visibility online and manage our salon from one place.", author: "Stylist in Lusaka" },
+              { text: "BookerBeauty Beauty helped us get more visibility online and manage our salon from one place.", author: "Stylist in Lusaka" },
               { text: "The platform is simple to use and the customer management tools save us hours every week.", author: "Salon Owner in Douala" },
               { text: "We love the AI assistant and the ability to communicate with our customers easily.", author: "Makeup Artist in Lagos" }
             ].map((t, i) => (
@@ -242,7 +242,7 @@ const LandingPage = () => {
             Ready To Grow Your <br /> Beauty Business?
           </h2>
           <p className="text-gray-400 text-lg md:text-xl font-medium max-w-xl mx-auto mb-10">
-            Join hundreds of beauty professionals using Beautyhub Beauty to attract new customers, manage their businesses, and increase their revenue.
+            Join hundreds of beauty professionals using BookerBeauty Beauty to attract new customers, manage their businesses, and increase their revenue.
           </p>
           <Link to="/register">
             <button className="bg-white text-gray-900 px-16 py-5 rounded-full font-black text-xl md:text-2xl shadow-2xl hover:scale-105 transition-transform active:scale-95">
@@ -252,7 +252,7 @@ const LandingPage = () => {
         </div>
         {/* Decorative background text */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] select-none pointer-events-none">
-          <span className="text-[40vw] font-black tracking-tighter uppercase italic">Beautyhub</span>
+          <span className="text-[40vw] font-black tracking-tighter uppercase italic">BookerBeauty</span>
         </div>
       </section>
     </div>
