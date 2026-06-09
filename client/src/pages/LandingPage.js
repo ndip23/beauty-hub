@@ -63,7 +63,7 @@ const LandingPage = () => {
               </span>
             </h1>
             <p className="text-lg md:text-2xl text-gray-500 font-medium max-w-3xl mx-auto leading-relaxed mb-12">
-            BookerBeauty helps salons, spas, barbershops, makeup artists, nail technicians, and beauty professionals attract new clients, manage their businesses, and grow faster from one platform.
+            BookerBeauty helps beauty salons, spas, barbershops, makeup artists, nail technicians, and beauty professionals attract new clients, manage their businesses, and grow faster from one platform.
             </p>
           </motion.div>
 
