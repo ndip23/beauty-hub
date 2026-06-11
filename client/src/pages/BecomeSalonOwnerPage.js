@@ -1,14 +1,11 @@
 "use client";
-
-import { useTranslation } from "react-i18next";
-import { FaArrowRight, FaChartLine, FaHeart, FaStore, FaWallet } from "react-icons/fa";
+import { FaArrowRight, FaHeart, FaStore, FaWallet } from "react-icons/fa";
 import { IoAnalyticsOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import heroBg from "../assets/hero-background.jpg";
 import Button from "../components/Button";
 
 const BecomeSalonOwnerPage = () => {
-  const { t } = useTranslation();
 
   return (
     <div className="bg-white font-sans antialiased text-[#1D1D1F]">
