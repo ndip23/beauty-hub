@@ -15,7 +15,24 @@
       name="description"
       content="Web site created using create-react-app"
     />
-
+    <!-- Local Ad Network Advanced Tracking -->
+<script>
+(function() {
+  window.LAN_PUB = 'f6934acf-3453-4155-9bdb-a3b9138e7448';
+  window.LAN_BASE = 'https://local-ads-nine.vercel.app';
+  
+  var s = document.createElement('script');
+  s.src = 'https://local-ads-nine.vercel.app/api/publisher/pixel/track.js?pub_id=f6934acf-3453-4155-9bdb-a3b9138e7448';
+  s.async = true;
+  document.head.appendChild(s);
+  
+  // Track page view automatically
+  window.addEventListener('load', function() {
+    var img = new Image();
+    img.src = 'https://local-ads-nine.vercel.app/api/publisher/pixel/img?pub_id=f6934acf-3453-4155-9bdb-a3b9138e7448&page=' + encodeURIComponent(window.location.href) + '&ref=' + encodeURIComponent(document.referrer) + '&t=' + Date.now();
+  });
+})();
+</script>
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
